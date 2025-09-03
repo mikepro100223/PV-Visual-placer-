@@ -1,10 +1,5 @@
 # Project Title
 
-Team number: *x*
-
-Challenge number: *x*
-
-
 > All code produced during the Energy Data Hackdays or other Events and Programs organized,
 > co-organized or hosted by EDIH and submitted for review shall be shared on [EDIH’s Gitlab repository](https://gitlab.com/edhd/).
 >
