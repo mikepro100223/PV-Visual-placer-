@@ -1,7 +1,22 @@
 # Project Title
 
 Team number: *x*
+
 Challenge number: *x*
+
+
+> All code produced during the Energy Data Hackdays or other Events and Programs organized,
+> co-organized or hosted by EDIH and submitted for review shall be shared on [EDIH’s Gitlab repository](https://gitlab.com/edhd/).
+>
+> EDIH expects full documentation including:
+>
+> 1) Description of all data used (**not** the data itself)
+> 2) Output data description (**not** the data itself) and where they are stored
+> 3) Explanation of features used
+> 4) A requirements file with all packages and versions used
+> 5) Environment code to be run
+
+
 
 ## Challenge
 
