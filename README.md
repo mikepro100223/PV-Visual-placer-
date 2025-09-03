@@ -30,10 +30,19 @@ Challenge number: *x*
 
 *What things you need to install the software and how to install them.*
 
-
-### Installing
+### Installation
 
 *A step by step series of examples that tell you how to get a development env running.*
+
+## Data
+
+## Input data
+
+*A brief description of the input data. Try to use relative paths to the data and define any environment variables.*
+
+## Output Data
+
+*A brief description of the output data. Provide information about the features and the location of the data.*
 
 ## Contributing
 
