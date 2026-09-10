@@ -271,3 +271,42 @@ def test_an_outline_fits_through_the_api():
         assert len(ring.exterior.coords) <= pv.MAX_VERTICES + 1
         for hole in ring.interiors:
             assert len(hole.coords) <= pv.MAX_VERTICES + 1
+
+
+def test_a_ring_of_modules_does_not_reclaim_its_courtyard():
+    """The analysis carries one ring per object and no interiors, so a hole
+    would be silently dropped and the courtyard billed as array."""
+    ring = Polygon([(0, 0), (100, 0), (100, 100), (0, 100)],
+                   [[(30, 30), (70, 30), (70, 70), (30, 70)]])
+    pieces = pv.without_holes(ring)
+    assert pieces
+    assert all(not piece.interiors for piece in pieces)
+    courtyard = box(35, 35, 65, 65)
+    assert all(not piece.intersects(courtyard) for piece in pieces)
+    kept = sum(piece.area for piece in pieces)
+    assert abs(kept - ring.area) / ring.area < 0.05
+
+
+def test_a_solid_block_is_left_whole():
+    solid = box(0, 0, 50, 50)
+    assert pv.without_holes(solid) == [solid]
+
+
+def test_glazing_is_not_claimed_as_an_array():
+    """Rooflights reflect the sky, so they are blue, and their frames make them
+    as rough as a module field. What separates them is that glass photographs
+    brighter than the roof and a module never does."""
+    image = roof_image(red=120, green=118, blue=116)
+    glass = image[60:170, 60:180].astype(np.float32)
+    glass[..., 0] = 190
+    glass[..., 1] = 200
+    glass[..., 2] = 215
+    glass[::11, :, :] -= 60      # glazing bars
+    glass[:, ::11, :] -= 60
+    image[60:170, 60:180] = np.clip(glass, 0, 255).astype(np.uint8)
+    assert pv.detect(image, ROOF, PPM) == []
+
+
+def test_a_real_array_survives_the_brightness_ceiling():
+    image = put_array(roof_image(), 60, 60, 180, 170)
+    assert pv.detect(image, ROOF, PPM)

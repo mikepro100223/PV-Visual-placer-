@@ -49,6 +49,14 @@ EDGE_MARGIN_M = 0.3
 # Modules carry cell and frame lines, so an array is never smoother than the
 # roof it sits on. This rejects smooth blue-grey metal sheeting.
 MIN_TEXTURE_RATIO = 1.0
+# Glass rooflights are blue too - they reflect the sky - and their frames make
+# them as rough as a module field, so colour and texture alone let a bank of
+# them be claimed as an array. What separates them is brightness: a module
+# absorbs light and never photographs much brighter than the roof it sits on,
+# while glazing does. Real arrays measured 0.55 to 1.15 against their roof;
+# the glazing on a Hardhof sawtooth measured 1.69.
+BRIGHT_CEILING = 1.25
+
 # Modules are laid in rectangular blocks, so a real array is compact. Where the
 # colour split spills along walkways it produces the opposite: a thin-walled
 # blob wrapping around plant rooms. Rather than discard such a component - which
@@ -138,6 +146,40 @@ def fill_small_holes(mask: np.ndarray, max_pixels: int) -> np.ndarray:
             continue
         filled[labels == index] = 1
     return filled
+
+
+def without_holes(polygon: Polygon) -> list[Polygon]:
+    """The same shape as pieces that have no holes.
+
+    An array can genuinely ring a courtyard, but the analysis carries one
+    outline per object with no interiors, so a ring handed on as its exterior
+    alone silently reclaims the courtyard. Slitting the ring open from each
+    hole turns it into C-shaped pieces that say the same thing and survive the
+    journey.
+    """
+    pending, out = [polygon], []
+    while pending:
+        current = pending.pop()
+        if current.is_empty or current.geom_type != "Polygon":
+            continue
+        if not current.interiors:
+            out.append(current)
+            continue
+        hole = max(current.interiors, key=lambda r: Polygon(r).area)
+        minx, miny, maxx, maxy = current.bounds
+        centre = Polygon(hole).centroid
+        # A slit narrow enough to cost almost no area, from the hole to beyond
+        # the edge of the shape.
+        slit = Polygon([(centre.x - 0.5, centre.y), (centre.x + 0.5, centre.y),
+                        (centre.x + 0.5, maxy + 1.0), (centre.x - 0.5, maxy + 1.0)])
+        cut = current.difference(slit)
+        parts = list(cut.geoms) if cut.geom_type == "MultiPolygon" else [cut]
+        if all(len(part.interiors) == len(current.interiors) for part in parts):
+            # The slit missed; give up rather than loop, and keep the ring.
+            out.append(Polygon(current.exterior))
+            continue
+        pending.extend(parts)
+    return [p for p in out if not p.is_empty and p.area > 0]
 
 
 def _components(mask: np.ndarray, min_pixels: float):
@@ -243,6 +285,9 @@ def detect(
         if (mean_grey < SHADE_GREY_RATIO * roof_grey
                 and mean_blue < SHADE_BLUE_FLOOR):
             continue
+        # ...and the opposite mistake: glazing, which is bright.
+        if mean_grey > BRIGHT_CEILING * roof_grey:
+            continue
         contours, hierarchy = cv2.findContours(
             part.astype(np.uint8), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE
         )
@@ -282,13 +327,16 @@ def detect(
                              split_blocks(part, floor_px,
                                           SPLIT_M * pixels_per_metre))
             continue
-        found.append(
-            {
-                "geometry": polygon,
-                "area_m2": round(polygon.area * cell, 2),
-                "blue_shift": round(float(blue[part].mean()), 1),
-                "darker_than_roof": round(roof_grey - float(grey[part].mean()), 1),
-            }
-        )
+        for piece in without_holes(polygon):
+            if piece.area * cell < MIN_AREA_M2:
+                continue
+            found.append(
+                {
+                    "geometry": piece,
+                    "area_m2": round(piece.area * cell, 2),
+                    "blue_shift": round(float(blue[part].mean()), 1),
+                    "darker_than_roof": round(roof_grey - float(grey[part].mean()), 1),
+                }
+            )
     found.sort(key=lambda o: -o["area_m2"])
     return found[:MAX_ARRAYS]
