@@ -76,6 +76,10 @@ Outputs: `models/{swiss,rid,roof}_best.pt`, live `*_status.json`, final held-out
 
 The initial completed Swiss run (100 epochs, before the requested retraining) achieved held-out mask precision **0.842**, recall **0.766**, mAP50 **0.865** and mAP50-95 **0.594**. These are installation-region metrics, not a guarantee of roof capacity accuracy.
 
+## Selective Abbas integration
+
+Obstacle detection now combines Yucan RID with Abbas height-based structures, image rooflights and Geneva surveyed polygons. Yucan PV, roof geometry, usable-area calculation and placement remain in place. See [integration decisions, contract and validation](docs/ABBAS_INTEGRATION.md). An optional `OBSTACLE_MODEL_PATH` replaces the obstacle checkpoint without adding another model.
+
 ## Verification
 
 ```powershell

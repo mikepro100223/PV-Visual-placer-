@@ -7,12 +7,19 @@ import threading
 import numpy as np
 from PIL import Image
 from shapely.geometry import Polygon
+from app.detections import ALIASES,KINDS,normalise,merge_detections,pixel_to_world
 
 ROOT = Path(__file__).resolve().parents[1]
 os.environ.setdefault('YOLO_CONFIG_DIR',str(ROOT/'data/ultralytics'))
 LOCK = threading.Lock()
 LOADED = {}
 STATUS_CACHE = {}
+
+def checkpoint_path(name):
+    if name=='rid' and os.environ.get('OBSTACLE_MODEL_PATH'):
+        path=Path(os.environ['OBSTACLE_MODEL_PATH'])
+        return path if path.is_absolute() else ROOT/path
+    return ROOT/'models'/f'{name}_best.pt'
 
 def status():
     result = {}
@@ -23,7 +30,10 @@ def status():
         except (OSError,json.JSONDecodeError):
             pass  # Keep the last complete status during a Windows file lock.
         result[name] = dict(STATUS_CACHE.get(name,{'state':'not_trained'}))
-        result[name]['available'] = (ROOT/'models'/f'{name}_best.pt').exists()
+        if name=='rid' and os.environ.get('OBSTACLE_MODEL_PATH'):
+            result[name]={'state':'ready' if checkpoint_path(name).is_file() else 'not_trained','external_checkpoint':True}
+        result[name]['available'] = checkpoint_path(name).is_file()
+        result[name]['checkpoint']=checkpoint_path(name).name
     return result
 
 def predict(image, bounds, confidence, obstacle_confidence=None):
@@ -38,13 +48,28 @@ def predict(image, bounds, confidence, obstacle_confidence=None):
     device = os.environ.get('PV_INFERENCE_DEVICE', '0' if torch.cuda.is_available() else 'cpu')
     with LOCK:
         for dataset in ['swiss','rid','roof']:
-            path = ROOT/'models'/f'{dataset}_best.pt'
+            path = checkpoint_path(dataset)
             if not path.exists():
                 continue
-            stamp = path.stat().st_mtime_ns
+            stamp = (str(path.resolve()),path.stat().st_mtime_ns)
             if dataset not in LOADED or LOADED[dataset][0] != stamp:
                 LOADED[dataset] = (stamp,YOLO(path))
             model = LOADED[dataset][1]
+            if dataset=='rid':
+                names={ALIASES.get(str(n),str(n)) for n in model.names.values()}
+                if model.task!='segment' or not names.issubset(KINDS-{'roof'}) or not names-{'pv_installation'}:
+                    raise ValueError('Obstacle checkpoint must segment rooftop obstacles; PV-only or generic COCO weights are unsupported.')
+                # Abbas contributes a full-image obstacle pass only. Native
+                # crops below retain the original Yucan PV predictions exactly.
+                if max(image.size)>768:
+                    result=model.predict(image,conf=obstacle_confidence,imgsz=1024,
+                                         device=device,retina_masks=True,verbose=False)[0]
+                    if result.masks is not None:
+                        for coords,cls,score in zip(result.masks.xy,result.boxes.cls.tolist(),result.boxes.conf.tolist()):
+                            kind=ALIASES.get(model.names[int(cls)],model.names[int(cls)])
+                            if kind=='pv_installation' or len(coords)<3:continue
+                            geom=pixel_to_world(Polygon(coords).buffer(0),bounds,image.size)
+                            predictions.append(dict(geometry=geom,label=kind,confidence=round(score,3),model='rid'))
             # Match training object scale: Swiss chips cover 100 m; RID crops
             # are smaller. Overlapping crops retain tiny objects on wide roofs.
             tile = 512 if dataset == 'rid' else 1000
@@ -61,7 +86,9 @@ def predict(image, bounds, confidence, obstacle_confidence=None):
                     if result.masks is None:
                         continue
                     for coords, cls, score in zip(result.masks.xy,result.boxes.cls.tolist(),result.boxes.conf.tolist()):
-                        label=model.names[int(cls)]
+                        label=ALIASES.get(model.names[int(cls)],model.names[int(cls)])
+                        if dataset=='rid' and os.environ.get('OBSTACLE_MODEL_PATH') and label=='pv_installation':
+                            continue
                         threshold=obstacle_confidence if dataset=='rid' and label!='pv_installation' else confidence
                         if score<threshold:
                             continue
@@ -75,4 +102,5 @@ def predict(image, bounds, confidence, obstacle_confidence=None):
                             continue
                         predictions.append(dict(geometry=geom,label=label,
                                                 confidence=round(score,3),model=dataset))
-    return predictions
+    obstacles=merge_detections([d for d in predictions if d['model']=='rid'])
+    return normalise([d for d in predictions if d['model']!='rid'])+obstacles

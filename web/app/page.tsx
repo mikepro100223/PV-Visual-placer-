@@ -59,7 +59,7 @@ export default function Home() {
           const text = p.kind === 'roof' ? `Roof: ${p.pitch}° pitch, ${Math.round(p.azimuth)}° direction`
             : p.kind === 'panel' ? 'New module · 450 W · 1.762 × 1.134 m'
             : p.kind === 'free' ? 'Roof without detected PV or obstacles'
-            : `${String(p.label).replaceAll('_', ' ')} · ${Math.round(p.confidence * 100)}% confidence`;
+            : `${String(p.label).replaceAll('_', ' ')} · ${typeof p.confidence === 'number' ? `${Math.round(p.confidence * 100)}% confidence` : String(p.source ?? 'measured').replaceAll('_', ' ')}`;
           layer.bindTooltip(text);
         },
       }).addTo(map.current!);
@@ -107,7 +107,7 @@ export default function Home() {
       <div className="legend"><span><i className="roof" />Roof</span><span><i className="pv" />Existing PV</span><span><i className="obstacle" />Obstacles</span><span><i className="new" />New panels</span></div>
       <output className="selection-status">{busy && <span className="spinner" />}{message}</output>
       {error && <div className="error" role="alert">{error}</div>}
-      {result?.provisional && <p className="error">Provisional layout: obstacle or roof-boundary models are still training or unavailable. Do not treat empty predictions as a clear roof.</p>}
+      {result?.provisional && <p className="error">Provisional layout: a model or obstacle data source is not fully available. Do not treat empty predictions as a clear roof.</p>}
       {result && <><div className="metrics"><div><strong>{result.panel_count}</strong><span>new panels</span></div><div><strong>{result.additional_kwp.toFixed(2)}</strong><span>additional kWp</span></div><div><strong>{result.annual_kwh?.toLocaleString() ?? '—'}</strong><span>estimated kWh/year</span></div><div><strong>{result.usable_area_m2}</strong><span>usable roof m²</span></div></div>
         <p className="small">Detected existing PV footprint: {result.existing_pv_area_m2} m²</p>
         <table><caption>Roof faces</caption><thead><tr><th>Face</th><th>Pitch</th><th>Direction</th><th>Panels</th></tr></thead><tbody>{result.facets.map((f,i) => <tr key={f.id}><td>{i+1}</td><td>{f.pitch_deg.toFixed(0)}°</td><td>{f.azimuth_deg.toFixed(0)}°</td><td>{f.panel_count}</td></tr>)}</tbody></table></>}

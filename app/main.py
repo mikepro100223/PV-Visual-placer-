@@ -12,6 +12,8 @@ import requests
 from app.geodata import TO_WGS, get_roofs, get_image, search_address
 from app.geometry import MODULE, esri_polygon, pack_building
 from app.inference import status, predict
+from app.detections import normalise,merge_detections,public_detection
+from app.obstacles.pipeline import detect_obstacles
 
 app = FastAPI(title='PV Visual Placer',version='0.1.0')
 app.add_middleware(CORSMiddleware,allow_origins=['http://localhost:5173','http://127.0.0.1:5173'],allow_methods=['GET'])
@@ -49,14 +51,18 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
         geometries = [esri_polygon(r['geometry']) for r in records]
         whole = unary_union(geometries)
         image,bounds = get_image(whole.bounds)
-        detections = predict(image,bounds,confidence,obstacle_confidence)
+        detections = normalise(predict(image,bounds,confidence,obstacle_confidence))
         roof_predictions=[d['geometry'] for d in detections if d['label']=='roof']
         detected_roof=unary_union(roof_predictions) if roof_predictions else None
+        extra,obstacle_warnings,obstacle_sources=detect_obstacles(
+            image,bounds,geometries,[d for d in detections if d['label']!='roof'])
+        detections.extend(extra)
         detections = [dict(d,geometry=d['geometry'].intersection(whole)) for d in detections if d['label']!='roof' and d['geometry'].intersects(whole)]
         detections = [d for d in detections if not d['geometry'].is_empty and d['geometry'].area>.01]
+        detections=merge_detections(detections)
         features, facets = [], []
         panel_count,total_usable,total_energy = 0,0,0
-        warnings = []
+        warnings = list(obstacle_warnings)
         if not all(m['available'] for m in available.values()):
             warnings.append('Some roof models are unavailable. This layout is provisional; obstacles or roof-boundary errors may be missed.')
         planning_faces=[]
@@ -102,7 +108,8 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
             features.extend(feature(p,kind='panel',facet=i,power_w=450) for p in panels)
         for d in detections:
             features.append(feature(d['geometry'],kind='pv' if d['label']=='pv_installation' else 'obstacle',
-                                    label=d['label'],confidence=d['confidence'],model=d['model']))
+                                    label=d['label'],confidence=d['confidence'],model=d['model'],
+                                    source=d.get('source',d['model']),sources=d.get('sources',[])))
         if any(d['label']=='shadow' for d in detections):
             warnings.append('Visible image shadows are excluded conservatively; seasonal shadow movement is not simulated.')
         if any(f['pitch_deg']<1 for f in facets):
@@ -118,7 +125,9 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
                     annual_kwh=round(total_energy) if all(f['annual_kwh'] is not None for f in facets) else None,
                     usable_area_m2=round(total_usable,1),
                     existing_pv_area_m2=round(unary_union([d['geometry'] for d in detections if d['label']=='pv_installation']).area,1),
-                    provisional=not all(m['available'] and m.get('state')=='ready' for m in available.values()),
+                    provisional=not all(m['available'] and m.get('state')=='ready' for m in available.values())
+                                or 'unavailable' in obstacle_sources.values(),
+                    detections=[public_detection(d) for d in detections],obstacle_sources=obstacle_sources,
                     spacing=dict(edge_m=setback,obstacle_m=.5,module_gap_m=.1,row_gap_m=row_gap,flat_row_gap_m=max(1,row_gap),access_aisle_m=.8),
                     module=asdict(MODULE),warnings=list(dict.fromkeys(warnings)),
                     models=available,image='data:image/jpeg;base64,'+base64.b64encode(buffer.getvalue()).decode())

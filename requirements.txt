@@ -7,3 +7,6 @@ requests>=2.32,<3
 Pillow>=12,<13
 PyYAML>=6,<7
 pytest>=8,<10
+httpx>=0.28,<1
+numpy>=2,<3
+opencv-python>=4.11,<5
