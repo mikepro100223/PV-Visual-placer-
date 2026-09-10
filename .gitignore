@@ -2,6 +2,8 @@
 data/
 runs/
 models/*.pt
+!models/swiss_best.pt
+!models/rid_best.pt
 models/*.onnx
 __pycache__/
 *.pyc
