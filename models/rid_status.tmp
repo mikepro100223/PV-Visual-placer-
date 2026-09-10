@@ -1,0 +1,7 @@
+{
+  "dataset": "rid",
+  "state": "failed",
+  "elapsed_seconds": 259,
+  "epochs_requested": 100,
+  "error": "[WinError 5] Zugriff verweigert: 'C:\\\\Users\\\\yucan\\\\OneDrive - Alte Kantonsschule Aarau\\\\IMS\\\\Informatik\\\\FHNW Hackathon 26\\\\PV-visual-placer-\\\\models\\\\rid_status.tmp' -> 'C:\\\\Users\\\\yucan\\\\OneDrive - Alte Kantonsschule Aarau\\\\IMS\\\\Informatik\\\\FHNW Hackathon 26\\\\PV-visual-placer-\\\\models\\\\rid_status.json'"
+}

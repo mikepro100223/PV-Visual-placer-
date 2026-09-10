@@ -1,22 +1,19 @@
 {
   "dataset": "swiss",
-  "state": "training",
-  "elapsed_seconds": 1574,
+  "state": "ready",
+  "elapsed_seconds": 2439,
   "epochs_requested": 100,
-  "epoch": 60,
-  "metrics": {
-    "metrics/precision(B)": 0.78943,
-    "metrics/recall(B)": 0.70462,
-    "metrics/mAP50(B)": 0.80175,
-    "metrics/mAP50-95(B)": 0.63499,
-    "metrics/precision(M)": 0.78871,
-    "metrics/recall(M)": 0.70922,
-    "metrics/mAP50(M)": 0.80641,
-    "metrics/mAP50-95(M)": 0.57495,
-    "val/box_loss": 0.83931,
-    "val/seg_loss": 1.20766,
-    "val/cls_loss": 0.95268,
-    "val/dfl_loss": 1.005,
-    "val/sem_loss": 0.0
-  }
+  "checkpoint": "C:\\Users\\yucan\\OneDrive - Alte Kantonsschule Aarau\\IMS\\Informatik\\FHNW Hackathon 26\\PV-visual-placer-\\models\\swiss_best.pt",
+  "test_metrics": {
+    "metrics/precision(B)": 0.8254070277506808,
+    "metrics/recall(B)": 0.7518248175182481,
+    "metrics/mAP50(B)": 0.8454111887321488,
+    "metrics/mAP50-95(B)": 0.6894105160729999,
+    "metrics/precision(M)": 0.8420967101065243,
+    "metrics/recall(M)": 0.7664233576642335,
+    "metrics/mAP50(M)": 0.8654254865477952,
+    "metrics/mAP50-95(M)": 0.5942134481425307,
+    "fitness": 1.2836239642155305
+  },
+  "epochs_completed": 100
 }

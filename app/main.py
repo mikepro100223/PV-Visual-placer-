@@ -10,7 +10,7 @@ from shapely.ops import transform, unary_union
 import requests
 
 from app.geodata import TO_WGS, get_roofs, get_image, search_address
-from app.geometry import MODULE, esri_polygon, pack_panels
+from app.geometry import MODULE, esri_polygon, pack_building
 from app.inference import status, predict
 
 app = FastAPI(title='PV Visual Placer',version='0.1.0')
@@ -34,7 +34,8 @@ def feature(geometry, **properties):
 @app.get('/api/analyze')
 def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
             confidence: float=Query(default=.25,ge=.1,le=.9),
-            setback: float=Query(default=.3,ge=0,le=2)):
+            setback: float=Query(default=.6,ge=.3,le=2),
+            row_gap: float=Query(default=.35,ge=.2,le=2)):
     available = status()
     if not any(m['available'] for m in available.values()):
         raise HTTPException(503,'The roof models are still training. Watch the model status and try again when a checkpoint is ready.')
@@ -48,13 +49,28 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
         whole = unary_union(geometries)
         image,bounds = get_image(whole.bounds)
         detections = predict(image,bounds,confidence)
-        detections = [dict(d,geometry=d['geometry'].intersection(whole)) for d in detections if d['geometry'].intersects(whole)]
+        roof_predictions=[d['geometry'] for d in detections if d['label']=='roof']
+        detected_roof=unary_union(roof_predictions) if roof_predictions else None
+        detections = [dict(d,geometry=d['geometry'].intersection(whole)) for d in detections if d['label']!='roof' and d['geometry'].intersects(whole)]
         detections = [d for d in detections if not d['geometry'].is_empty and d['geometry'].area>.01]
         features, facets = [], []
         panel_count,total_usable,total_energy = 0,0,0
         warnings = []
         if not all(m['available'] for m in available.values()):
-            warnings.append('Only one model is ready. Existing PV or obstacles may be missed.')
+            warnings.append('Some roof models are unavailable. This layout is provisional; obstacles or roof-boundary errors may be missed.')
+        planning_faces=[]
+        for record,roof in zip(records,geometries):
+            attrs=record['attributes']
+            valid=attrs.get('neigung') is not None and attrs.get('ausrichtung') is not None and 0<=float(attrs['neigung'])<80
+            # When roof segmentation is available, require agreement between
+            # image-based roof detection and the geodata boundary.
+            planning_roof=roof.intersection(detected_roof) if detected_roof is not None else roof
+            if available.get('roof',{}).get('available') and detected_roof is None:
+                planning_roof=roof.difference(roof)
+            planning_faces.append(dict(geometry=planning_roof if valid else roof.difference(roof),
+                                       slope=float(attrs['neigung']) if valid else 0,
+                                       azimuth=(float(attrs['ausrichtung'])+180)%360 if valid else 0))
+        layouts=pack_building(planning_faces,[d['geometry'] for d in detections],setback=setback,row_gap=row_gap)
         for i,(record,roof) in enumerate(zip(records,geometries)):
             attrs = record['attributes']
             if attrs.get('neigung') is None or attrs.get('ausrichtung') is None:
@@ -65,8 +81,7 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
             if slope>=80:
                 warnings.append('Very steep roof facet excluded.')
                 continue
-            blockers = [d['geometry'] for d in detections if d['geometry'].intersects(roof)]
-            panels,stats = pack_panels(roof,blockers,slope,azimuth,setback=setback)
+            panels,stats = layouts[i]
             irradiance = attrs.get('mstrahlung')
             energy = len(panels)*MODULE.power_w/1000*float(irradiance)*.8 if irradiance is not None else None
             if energy is None:
@@ -80,6 +95,9 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
                                annual_kwh=round(energy) if energy is not None else None,
                                irradiance_kwh_m2=irradiance,**stats))
             features.append(feature(roof,kind='roof',pitch=slope,azimuth=azimuth,facet=i))
+            free=planning_faces[i]['geometry'].difference(unary_union([d['geometry'] for d in detections]))
+            if not free.is_empty:
+                features.append(feature(free,kind='free',label='Roof without detected PV or obstacles',facet=i))
             features.extend(feature(p,kind='panel',facet=i,power_w=450) for p in panels)
         for d in detections:
             features.append(feature(d['geometry'],kind='pv' if d['label']=='pv_installation' else 'obstacle',
@@ -87,7 +105,7 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
         if any(d['label']=='shadow' for d in detections):
             warnings.append('Visible image shadows are excluded conservatively; seasonal shadow movement is not simulated.')
         if any(f['pitch_deg']<1 for f in facets):
-            warnings.append('Flat-roof layout assumes modules mounted flat. Tilted racks need extra row spacing.')
+            warnings.append('Flat roofs reserve at least 1 m between rows. Exact rack tilt and seasonal self-shading still need installation design.')
         warnings.extend(['Image predictions can miss small or obscured objects. Review the overlay.',
                          'Energy uses Sonnendach annual radiation and an assumed 80% performance ratio. No new hourly weather or 3D shadow simulation.',
                          'Clearances are prototype assumptions; roof condition, structural capacity and installation rules are unverified.'])
@@ -99,6 +117,8 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
                     annual_kwh=round(total_energy) if all(f['annual_kwh'] is not None for f in facets) else None,
                     usable_area_m2=round(total_usable,1),
                     existing_pv_area_m2=round(unary_union([d['geometry'] for d in detections if d['label']=='pv_installation']).area,1),
+                    provisional=not all(m['available'] and m.get('state')=='ready' for m in available.values()),
+                    spacing=dict(edge_m=setback,obstacle_m=.5,module_gap_m=.1,row_gap_m=row_gap,flat_row_gap_m=max(1,row_gap),access_aisle_m=.8),
                     module=asdict(MODULE),warnings=list(dict.fromkeys(warnings)),
                     models=available,image='data:image/jpeg;base64,'+base64.b64encode(buffer.getvalue()).decode())
     except HTTPException:

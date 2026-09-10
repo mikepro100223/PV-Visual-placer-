@@ -1,5 +1,6 @@
 """Audit Swiss PV masks and create geographically grouped YOLO11 data."""
 from collections import Counter
+import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -37,14 +38,18 @@ def split_group(key):
     return 'train' if bucket < 70 else 'val' if bucket < 85 else 'test'
 
 def main():
-    source = ROOT / 'data/raw/swiss'
-    target = ROOT / 'data/processed/swiss'
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--source',type=Path,default=ROOT/'data/raw/swiss')
+    parser.add_argument('--task',choices=['swiss','roof'],default='swiss')
+    args=parser.parse_args()
+    source = args.source.resolve()
+    target = ROOT / 'data/processed' / args.task
     report_dir = ROOT / 'data/reports'
     report_dir.mkdir(parents=True, exist_ok=True)
     counts, groups, values = Counter(), {}, Counter()
     rows, samples, seen = [], [], {}
     for path in sorted((source / 'images').glob('*.jpg')):
-        mask_path = source / 'labels' / (path.stem + '.png')
+        mask_path = source / ('labels' if args.task=='swiss' else 'roofs/masks') / (path.stem + '.png')
         if not mask_path.is_file():
             raise ValueError(f'Missing mask: {path.name}')
         image = Image.open(path).convert('RGB')
@@ -96,17 +101,17 @@ def main():
     for split in ['train', 'val', 'test']:
         included = [r for r in rows if r['split'] == split and r['file'] not in excluded]
         (target / (split + '.txt')).write_text('\n'.join((target/'images'/split/r['file']).as_posix() for r in included), encoding='utf-8')
-    config = dict(path=target.as_posix(), train='train.txt', val='val.txt', test='test.txt', names={0:'pv_installation'})
+    config = dict(path=target.as_posix(), train='train.txt', val='val.txt', test='test.txt', names={0:'pv_installation' if args.task=='swiss' else 'roof'})
     (target / 'dataset.yaml').write_text(yaml.safe_dump(config), encoding='utf-8')
-    report = dict(source='Kaggle jeanprbt/swiss-solar-panels-segmentation version 1', counts=dict(counts),
+    report = dict(source=str(source),task=args.task, counts=dict(counts),
                   excluded_train_boundary_files=sorted(excluded), mask_values=dict(values), groups=groups,
                   minimum_conversion_iou=min(r['conversion_iou'] for r in rows),
                   mean_conversion_iou=float(np.mean([r['conversion_iou'] for r in rows])), files=rows)
-    (report_dir/'swiss_audit.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
+    (report_dir/f'{args.task}_audit.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
     sheet = Image.new('RGB', (1280, 960))
     for i, sample in enumerate(samples):
         sheet.paste(sample, ((i%4)*320, (i//4)*320))
-    sheet.save(report_dir/'swiss_overlays.jpg')
+    sheet.save(report_dir/f'{args.task}_overlays.jpg')
     print(json.dumps({k:v for k,v in report.items() if k not in {'files','groups'}}, indent=2))
 
 if __name__ == '__main__':

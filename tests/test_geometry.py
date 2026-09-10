@@ -3,7 +3,7 @@ import pytest
 from shapely import affinity
 from shapely.geometry import Polygon, box
 from shapely.ops import unary_union
-from app.geometry import MODULE, esri_polygon, pack_panels, roof_transform
+from app.geometry import MODULE, esri_polygon, pack_panels, pack_building, roof_transform
 
 @pytest.mark.parametrize('slope,azimuth',[(0,0),(30,0),(30,90),(45,180),(60,270)])
 def test_real_module_dimensions_and_roof_clearance(slope,azimuth):
@@ -52,3 +52,26 @@ def test_esri_multiple_exteriors_and_holes():
 def test_invalid_pitch_rejected():
     with pytest.raises(ValueError):
         pack_panels(box(0,0,10,10),[],90,0)
+
+def test_overlapping_facets_and_duplicate_faces_cannot_stack_panels():
+    faces=[dict(geometry=box(0,0,12,12),slope=25,azimuth=180),
+           dict(geometry=box(5,0,16,12),slope=35,azimuth=90),
+           dict(geometry=box(0,0,12,12),slope=25,azimuth=180)]
+    layouts=pack_building(faces,[])
+    assert layouts[0][0] and layouts[1][0] and not layouts[2][0]
+    panels=[p for group,_ in layouts for p in group]
+    assert sum(p.area for p in panels)==pytest.approx(unary_union(panels).area,abs=1e-7)
+    for face,(group,_) in zip(faces,layouts):
+        assert all(face['geometry'].buffer(1e-7).covers(p) for p in group)
+
+def test_realistic_row_gaps_and_flat_roof_density():
+    roof=box(0,0,10,10)
+    panels,_=pack_panels(roof,[],0,0)
+    assert panels
+    for i,panel in enumerate(panels):
+        assert all(panel.distance(p)>.099999 for p in panels[i+1:])
+    # Full flat modules plus 1 m row spacing cannot tile most of the roof.
+    assert sum(p.area for p in panels)<roof.area*.65
+
+def test_empty_detected_roof_cannot_create_panels():
+    assert pack_building([dict(geometry=Polygon(),slope=30,azimuth=180)],[])[0][0]==[]

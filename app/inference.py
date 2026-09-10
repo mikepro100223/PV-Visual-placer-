@@ -12,12 +12,17 @@ ROOT = Path(__file__).resolve().parents[1]
 os.environ.setdefault('YOLO_CONFIG_DIR',str(ROOT/'data/ultralytics'))
 LOCK = threading.Lock()
 LOADED = {}
+STATUS_CACHE = {}
 
 def status():
     result = {}
-    for name in ['swiss','rid']:
+    for name in ['swiss','rid','roof']:
         report = ROOT/'models'/f'{name}_status.json'
-        result[name] = json.loads(report.read_text()) if report.exists() else {'state':'not_trained'}
+        try:
+            if report.exists():STATUS_CACHE[name]=json.loads(report.read_text())
+        except (OSError,json.JSONDecodeError):
+            pass  # Keep the last complete status during a Windows file lock.
+        result[name] = dict(STATUS_CACHE.get(name,{'state':'not_trained'}))
         result[name]['available'] = (ROOT/'models'/f'{name}_best.pt').exists()
     return result
 
@@ -31,7 +36,7 @@ def predict(image, bounds, confidence):
     # available for machines without CUDA, not used on this training machine.
     device = os.environ.get('PV_INFERENCE_DEVICE', '0' if torch.cuda.is_available() else 'cpu')
     with LOCK:
-        for dataset in ['swiss','rid']:
+        for dataset in ['swiss','rid','roof']:
             path = ROOT/'models'/f'{dataset}_best.pt'
             if not path.exists():
                 continue
@@ -41,7 +46,7 @@ def predict(image, bounds, confidence):
             model = LOADED[dataset][1]
             # Match training object scale: Swiss chips cover 100 m; RID crops
             # are smaller. Overlapping crops retain tiny objects on wide roofs.
-            tile = 1000 if dataset == 'swiss' else 512
+            tile = 512 if dataset == 'rid' else 1000
             stride = int(tile*.75)
             xs = sorted(set([*range(0,max(width-tile,0)+1,stride),max(width-tile,0)]))
             ys = sorted(set([*range(0,max(height-tile,0)+1,stride),max(height-tile,0)]))

@@ -1,0 +1,6 @@
+{
+  "dataset": "roof",
+  "state": "queued",
+  "waiting_for": "rid",
+  "epochs_requested": 100
+}

@@ -5,19 +5,20 @@ import os
 from pathlib import Path
 import shutil
 import time
+import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
 os.environ.setdefault('YOLO_CONFIG_DIR', str(ROOT / 'data/ultralytics'))
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', choices=['swiss', 'rid'], required=True)
+    parser.add_argument('--dataset', choices=['swiss', 'rid','roof'], required=True)
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--imgsz', type=int, default=1024)
     parser.add_argument('--batch', type=int, default=6)
     parser.add_argument('--workers', type=int, default=4)
     parser.add_argument('--resume', default=None)
-    parser.add_argument('--wait-for', choices=['swiss','rid'], default=None)
+    parser.add_argument('--wait-for', choices=['swiss','rid','roof'], default=None)
     parser.add_argument('--mask-ratio', type=int, choices=[2,4], default=None)
     args = parser.parse_args()
     if args.wait_for:
@@ -50,9 +51,25 @@ def main():
     def write_status(state, **extra):
         status = dict(dataset=args.dataset, state=state, elapsed_seconds=round(time.time()-started),
                       epochs_requested=args.epochs, **extra)
-        tmp = status_file.with_suffix('.tmp')
-        tmp.write_text(json.dumps(status, indent=2, default=str), encoding='utf-8')
-        tmp.replace(status_file)
+        # OneDrive/antivirus may briefly deny replacement of an open file on
+        # Windows. A UI status update must never terminate GPU training.
+        tmp = status_file.with_suffix('.'+uuid.uuid4().hex+'.tmp')
+        try:
+            tmp.write_text(json.dumps(status, indent=2, default=str), encoding='utf-8')
+            for attempt in range(20):
+                try:
+                    tmp.replace(status_file)
+                    return
+                except PermissionError:
+                    time.sleep(.1)
+            print(f'Progress file temporarily locked; training continues (epoch {extra.get("epoch", "-")}).',flush=True)
+        except OSError as exc:
+            print(f'Could not update progress; training continues: {exc}',flush=True)
+        finally:
+            try:
+                tmp.unlink(missing_ok=True)
+            except OSError:
+                pass
     write_status('starting')
     model = YOLO(args.resume or 'yolo11s-seg.pt')
     def epoch_callback(trainer):
@@ -74,13 +91,22 @@ def main():
         if not best_path.exists():
             raise RuntimeError('Training produced no best checkpoint')
         checkpoint = models / (args.dataset + '_best.pt')
-        shutil.copy2(best_path, checkpoint)
+        temporary_checkpoint=checkpoint.with_suffix('.pt.tmp')
+        shutil.copy2(best_path, temporary_checkpoint)
+        for attempt in range(50):
+            try:
+                temporary_checkpoint.replace(checkpoint)
+                break
+            except PermissionError:
+                if attempt==49:raise
+                time.sleep(.1)
         best = YOLO(checkpoint)
         metrics = best.val(data=str(data), split='test', device=0, imgsz=args.imgsz,
                            batch=args.batch, workers=args.workers, plots=True,
                            project=str(ROOT/'runs/evaluation'), name=args.dataset)
         report = {k:float(v) for k,v in metrics.results_dict.items()}
         (models/f'{args.dataset}_metrics.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
+        (models/f'{args.dataset}_classes.json').write_text(json.dumps(metrics.summary(),indent=2),encoding='utf-8')
         write_status('ready', checkpoint=str(checkpoint), test_metrics=report,
                      epochs_completed=model.trainer.epoch + 1)
     except BaseException as exc:

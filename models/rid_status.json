@@ -1,6 +1,22 @@
 {
   "dataset": "rid",
-  "state": "starting",
-  "elapsed_seconds": 0,
-  "epochs_requested": 100
+  "state": "training",
+  "elapsed_seconds": 1161,
+  "epochs_requested": 100,
+  "epoch": 43,
+  "metrics": {
+    "metrics/precision(B)": 0.56679,
+    "metrics/recall(B)": 0.52245,
+    "metrics/mAP50(B)": 0.51292,
+    "metrics/mAP50-95(B)": 0.25727,
+    "metrics/precision(M)": 0.55746,
+    "metrics/recall(M)": 0.49432,
+    "metrics/mAP50(M)": 0.48992,
+    "metrics/mAP50-95(M)": 0.21871,
+    "val/box_loss": 1.96582,
+    "val/seg_loss": 2.90886,
+    "val/cls_loss": 1.5009,
+    "val/dfl_loss": 1.27678,
+    "val/sem_loss": 0.0
+  }
 }

@@ -38,8 +38,9 @@ def roof_transform(roof, slope, azimuth):
     backward = [*inverse[0], *inverse[1], origin.x, origin.y]
     return forward, backward
 
-def pack_panels(roof, obstacles, slope, azimuth, setback=0.3, obstacle_gap=0.25, module=MODULE):
-    if setback < 0 or obstacle_gap < 0:
+def pack_panels(roof, obstacles, slope, azimuth, setback=0.6, obstacle_gap=0.5,
+                module=MODULE, module_gap=0.1, row_gap=0.35, access_aisle=0.8):
+    if min(setback,obstacle_gap,module_gap,row_gap,access_aisle) < 0:
         raise ValueError('Clearances cannot be negative')
     if roof.is_empty or roof.area < 1:
         return [], dict(usable_area_m2=0, surface_area_m2=0)
@@ -49,6 +50,13 @@ def pack_panels(roof, obstacles, slope, azimuth, setback=0.3, obstacle_gap=0.25,
     usable = plane.buffer(-setback)
     if exclusions:
         usable = usable.difference(unary_union(exclusions))
+    # Reserve an access corridor on larger roof faces. Defaults are prototype
+    # planning assumptions, not a claim of compliance with installation rules.
+    if not usable.is_empty and access_aisle:
+        left,bottom,right,top=usable.bounds
+        if right-left>12 and top-bottom>6:
+            middle=(left+right)/2
+            usable=usable.difference(box(middle-access_aisle/2,bottom-1,middle+access_aisle/2,top+1))
     stats = dict(usable_area_m2=round(usable.area, 2), surface_area_m2=round(plane.area, 2))
     if usable.is_empty:
         return [], stats
@@ -57,7 +65,11 @@ def pack_panels(roof, obstacles, slope, azimuth, setback=0.3, obstacle_gap=0.25,
         raise ValueError('Roof is too large for this local prototype')
     best = []
     for width, height in [(module.width_m,module.length_m),(module.length_m,module.width_m)]:
-        step_x, step_y = width+0.02, height+0.02
+        # Flat roofs need appreciably more row space for mounting/access.
+        # Use the full physical module footprint as a conservative reservation;
+        # an exact tilted-rack/shadow design remains outside this prototype.
+        step_x = width+module_gap
+        step_y = height+max(row_gap,1.0 if slope<5 else row_gap)
         for ox in [0,0.25,0.5,0.75]:
             for oy in [0,0.25,0.5,0.75]:
                 candidate = []
@@ -69,6 +81,29 @@ def pack_panels(roof, obstacles, slope, azimuth, setback=0.3, obstacle_gap=0.25,
                 if len(candidate) > len(best):
                     best = candidate
     return [affinity.affine_transform(p, backward) for p in best], stats
+
+def pack_building(faces,obstacles,**settings):
+    """Share one occupancy ledger across facets, including overlapping geometry.
+
+    A duplicated/dormer/overlapping map face must never produce a second stack
+    of panels at the same location. Earlier faces own overlapping footprints.
+    """
+    claimed=[];placed=[];results=[]
+    for face in faces:
+        roof=face['geometry']
+        available=roof.difference(unary_union(claimed)) if claimed else roof
+        panels,stats=pack_panels(available,obstacles+placed,face['slope'],face['azimuth'],**settings)
+        accepted=[]
+        for panel in panels:
+            # Guard numerical drift and any future packing changes centrally.
+            if not roof.buffer(1e-7).covers(panel):
+                continue
+            if any(panel.intersection(p).area>1e-8 for p in placed):
+                continue
+            accepted.append(panel)
+        placed.extend(accepted);claimed.append(roof)
+        results.append((accepted,stats))
+    return results
 
 def esri_polygon(geometry):
     # Symmetric difference handles disjoint exteriors and interior rings without
