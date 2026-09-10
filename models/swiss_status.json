@@ -1,0 +1,22 @@
+{
+  "dataset": "swiss",
+  "state": "training",
+  "elapsed_seconds": 1574,
+  "epochs_requested": 100,
+  "epoch": 60,
+  "metrics": {
+    "metrics/precision(B)": 0.78943,
+    "metrics/recall(B)": 0.70462,
+    "metrics/mAP50(B)": 0.80175,
+    "metrics/mAP50-95(B)": 0.63499,
+    "metrics/precision(M)": 0.78871,
+    "metrics/recall(M)": 0.70922,
+    "metrics/mAP50(M)": 0.80641,
+    "metrics/mAP50-95(M)": 0.57495,
+    "val/box_loss": 0.83931,
+    "val/seg_loss": 1.20766,
+    "val/cls_loss": 0.95268,
+    "val/dfl_loss": 1.005,
+    "val/sem_loss": 0.0
+  }
+}

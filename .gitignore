@@ -1,0 +1,13 @@
+.venv/
+data/
+runs/
+models/*.pt
+models/*.onnx
+__pycache__/
+*.pyc
+.pytest_cache/
+logs/
+*.log
+/*.pt
+/Ultralytics/
+/logs-*.txt
