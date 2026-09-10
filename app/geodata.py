@@ -8,6 +8,9 @@ from pathlib import Path
 from PIL import Image
 from pyproj import Transformer
 import requests
+from shapely.ops import unary_union
+
+from app.geometry import esri_polygon
 
 ROOT = Path(__file__).resolve().parents[1]
 CACHE = ROOT / 'data/cache'
@@ -37,6 +40,33 @@ def cached_get(url, params, suffix):
     temporary.replace(path)
     return r.content
 
+def connected_roof_parts(selected, nearby):
+    """Join touching parts of the same registered house, not its neighbours."""
+    egid=selected[0]['attributes'].get('gwr_egid')
+    if not egid or int(egid)<=0:
+        return selected
+    accepted={r['featureId']:r for r in selected}
+    footprint=unary_union([esri_polygon(r['geometry']) for r in selected])
+    pending=[r for r in nearby if r.get('geometry',{}).get('rings')
+             and r['attributes'].get('gwr_egid')==egid and r['featureId'] not in accepted]
+    changed=True
+    while changed:
+        changed=False
+        for record in pending[:]:
+            geometry=esri_polygon(record['geometry'])
+            if footprint.distance(geometry)>1.5:
+                continue
+            combined=footprint.union(geometry)
+            left,bottom,right,top=combined.bounds
+            if max(right-left,top-bottom)>168:
+                continue
+            accepted[record['featureId']]=record
+            footprint=combined
+            pending.remove(record)
+            changed=True
+    return list(accepted.values())
+
+
 def get_roofs(lat, lon):
     x,y = TO_SWISS.transform(lon,lat)
     params = dict(geometryType='esriGeometryPoint', geometry=f'{x},{y}',
@@ -53,7 +83,18 @@ def get_roofs(lat, lon):
         data = json.loads(cached_get(API+'/MapServer/find',params,'.json'))
         all_roofs = data.get('results',[])
         if all_roofs and all(r.get('geometry',{}).get('rings') for r in all_roofs):
-            return all_roofs
+            results=all_roofs
+    # Sonnendach building_id can identify only a wing, entrance or dormer.
+    # A bounded spatial query is faster than a national find on gwr_egid.
+    if results[0]['attributes'].get('gwr_egid'):
+        params=dict(geometryType='esriGeometryEnvelope',geometry=f'{x-70},{y-70},{x+70},{y+70}',
+                    returnGeometry='true',layers='all:'+LAYER,tolerance=0,sr=2056,
+                    lang='en',geometryFormat='esrijson')
+        try:
+            nearby=json.loads(cached_get(API+'/MapServer/identify',params,'.json')).get('results',[])
+            results=connected_roof_parts(results,nearby)
+        except (requests.RequestException,ValueError):
+            pass  # Keep the selected part if the optional spatial query fails.
     return results
 
 def get_image(bounds):

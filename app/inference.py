@@ -26,11 +26,12 @@ def status():
         result[name]['available'] = (ROOT/'models'/f'{name}_best.pt').exists()
     return result
 
-def predict(image, bounds, confidence):
+def predict(image, bounds, confidence, obstacle_confidence=None):
     from ultralytics import YOLO
     minx,miny,maxx,maxy = bounds
     width,height = image.size
     predictions = []
+    obstacle_confidence=confidence if obstacle_confidence is None else obstacle_confidence
     import torch
     # Honor the requested 4090 for inference too; configurable CPU fallback is
     # available for machines without CUDA, not used on this training machine.
@@ -55,11 +56,15 @@ def predict(image, bounds, confidence):
                     raw_crop = image.crop((x0,y0,min(width,x0+tile),min(height,y0+tile)))
                     crop = Image.new('RGB',(tile,tile),(114,114,114))
                     crop.paste(raw_crop,(0,0))
-                    result = model.predict(crop,conf=confidence,imgsz=1024,
+                    result = model.predict(crop,conf=min(confidence,obstacle_confidence) if dataset=='rid' else confidence,imgsz=1024,
                                            device=device,retina_masks=True,verbose=False)[0]
                     if result.masks is None:
                         continue
                     for coords, cls, score in zip(result.masks.xy,result.boxes.cls.tolist(),result.boxes.conf.tolist()):
+                        label=model.names[int(cls)]
+                        threshold=obstacle_confidence if dataset=='rid' and label!='pv_installation' else confidence
+                        if score<threshold:
+                            continue
                         if len(coords)<3:
                             continue
                         points = [(minx+(float(x)+x0)/width*(maxx-minx),
@@ -68,6 +73,6 @@ def predict(image, bounds, confidence):
                         geom = Polygon(points).buffer(0).intersection(box(minx,miny,maxx,maxy))
                         if geom.is_empty:
                             continue
-                        predictions.append(dict(geometry=geom,label=model.names[int(cls)],
+                        predictions.append(dict(geometry=geom,label=label,
                                                 confidence=round(score,3),model=dataset))
     return predictions

@@ -35,7 +35,8 @@ def feature(geometry, **properties):
 def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
             confidence: float=Query(default=.25,ge=.1,le=.9),
             setback: float=Query(default=.6,ge=.3,le=2),
-            row_gap: float=Query(default=.35,ge=.2,le=2)):
+            row_gap: float=Query(default=.35,ge=.2,le=2),
+            obstacle_confidence: float=Query(default=.25,ge=.1,le=.9)):
     available = status()
     if not any(m['available'] for m in available.values()):
         raise HTTPException(503,'The roof models are still training. Watch the model status and try again when a checkpoint is ready.')
@@ -48,7 +49,7 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
         geometries = [esri_polygon(r['geometry']) for r in records]
         whole = unary_union(geometries)
         image,bounds = get_image(whole.bounds)
-        detections = predict(image,bounds,confidence)
+        detections = predict(image,bounds,confidence,obstacle_confidence)
         roof_predictions=[d['geometry'] for d in detections if d['label']=='roof']
         detected_roof=unary_union(roof_predictions) if roof_predictions else None
         detections = [dict(d,geometry=d['geometry'].intersection(whole)) for d in detections if d['label']!='roof' and d['geometry'].intersects(whole)]
