@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rooftop-pv"
+version = "0.1.0"
+description = "Swiss rooftop PV segmentation with YOLO11 and weather-aware solar yield modelling"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "ultralytics==8.4.146",
+  "pvlib==0.15.2",
+  "streamlit==1.63.0",
+  "numpy>=2,<3",
+  "pandas>=2.2,<3",
+  "pillow>=11,<13",
+  "requests>=2.32,<3",
+  "pyyaml>=6,<7",
+  "shapely>=2.1,<3",
+  "pyproj>=3.7,<4",
+  "scipy>=1.15,<2",
+  "plotly>=6,<7",
+]
+
+[project.scripts]
+rooftop-pv = "rooftop_pv.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8,<10",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.12,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["code/rooftop_pv"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["code"]
+filterwarnings = ["ignore:.*enable_nested_tensor.*:UserWarning"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]

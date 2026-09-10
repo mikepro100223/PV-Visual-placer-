@@ -1,0 +1,27 @@
+# Keep PV-only Swiss labels separate from multiclass rooftop annotations.
+role: obstacles
+data: data/processed/rid2/dataset.yaml
+model: yolo11n-seg.pt
+epochs: 40
+imgsz: 640
+batch: 8
+device: auto
+workers: 0
+seed: 42
+patience: 10
+optimizer: AdamW
+lr0: 0.001
+lrf: 0.01
+cos_lr: true
+warmup_epochs: 3
+degrees: 180.0
+flipud: 0.5
+fliplr: 0.5
+scale: 0.25
+mosaic: 0.5
+close_mosaic: 8
+mask_ratio: 2
+amp: false
+cache: false
+plots: true
+save_period: 5

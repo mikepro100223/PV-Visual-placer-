@@ -21,6 +21,8 @@ __pycache__/
 
 # Environments
 .env
+.env.*
+!.env.example
 .venv
 env/
 venv/
@@ -30,3 +32,18 @@ ENV/
 node_modules/
 npm-debug.log
 yarn-error.log
+
+# Local datasets, caches, model weights and generated results
+data/
+artifacts/
+runs/
+*.pt
+*.onnx
+*.mlpackage/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.streamlit/secrets.toml
+uv.lock.tmp
