@@ -27,6 +27,9 @@ def test_layout_requires_agreement_with_image_roof_boundary(monkeypatch):
     panels=[transform(TO_SWISS.transform,shape(f['geometry'])) for f in response.json()['geojson']['features'] if f['properties']['kind']=='panel']
     assert panels
     assert all(boundary.buffer(.001).covers(p) and not obstacle.intersects(p) for p in panels)
+    drawn=[transform(TO_SWISS.transform,shape(f['geometry'])) for f in response.json()['geojson']['features'] if f['properties']['kind']=='roof']
+    # EPSG:2056 -> WGS84 -> EPSG:2056 introduces about a millimetre here.
+    assert unary_union(drawn).hausdorff_distance(boundary)<.002
 
 def test_no_detected_roof_means_no_panel_placement(monkeypatch):
     client=setup_analysis(monkeypatch,[])

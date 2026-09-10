@@ -14,6 +14,7 @@ from app.geometry import MODULE, esri_polygon, pack_building
 from app.inference import status, predict
 from app.detections import normalise,merge_detections,public_detection
 from app.obstacles.pipeline import detect_obstacles
+from app.roof_alignment import align_roof_faces
 
 app = FastAPI(title='PV Visual Placer',version='0.1.0')
 app.add_middleware(CORSMiddleware,allow_origins=['http://localhost:5173','http://127.0.0.1:5173'],allow_methods=['GET'])
@@ -56,6 +57,10 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
         detected_roof=unary_union(roof_predictions) if roof_predictions else None
         extra,obstacle_warnings,obstacle_sources=detect_obstacles(
             image,bounds,geometries,[d for d in detections if d['label']!='roof'])
+        # Align the roof to this exact image once. All image/model and measured
+        # obstacle coordinates stay fixed; display and placement share the result.
+        geometries,roof_alignment=align_roof_faces(geometries,image,bounds)
+        whole=unary_union(geometries)
         detections.extend(extra)
         detections = [dict(d,geometry=d['geometry'].intersection(whole)) for d in detections if d['label']!='roof' and d['geometry'].intersects(whole)]
         detections = [d for d in detections if not d['geometry'].is_empty and d['geometry'].area>.01]
@@ -101,7 +106,11 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
                                panel_count=len(panels),kwp=round(len(panels)*.45,2),
                                annual_kwh=round(energy) if energy is not None else None,
                                irradiance_kwh_m2=irradiance,**stats))
-            features.append(feature(roof,kind='roof',pitch=slope,azimuth=azimuth,facet=i))
+            display_roof=planning_faces[i]['geometry']
+            if i:
+                display_roof=display_roof.difference(unary_union([f['geometry'] for f in planning_faces[:i]]))
+            if not display_roof.is_empty:
+                features.append(feature(display_roof,kind='roof',pitch=slope,azimuth=azimuth,facet=i))
             free=planning_faces[i]['geometry'].difference(unary_union([d['geometry'] for d in detections]))
             if not free.is_empty:
                 features.append(feature(free,kind='free',label='Roof without detected PV or obstacles',facet=i))
@@ -128,6 +137,7 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
                     provisional=not all(m['available'] and m.get('state')=='ready' for m in available.values())
                                 or 'unavailable' in obstacle_sources.values(),
                     detections=[public_detection(d) for d in detections],obstacle_sources=obstacle_sources,
+                    roof_alignment=roof_alignment,
                     spacing=dict(edge_m=setback,obstacle_m=.5,module_gap_m=.1,row_gap_m=row_gap,flat_row_gap_m=max(1,row_gap),access_aisle_m=.8),
                     module=asdict(MODULE),warnings=list(dict.fromkeys(warnings)),
                     models=available,image='data:image/jpeg;base64,'+base64.b64encode(buffer.getvalue()).decode())
