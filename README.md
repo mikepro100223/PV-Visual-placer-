@@ -4,7 +4,8 @@ Local Swiss aerial map, PyTorch YOLO11 segmentation and real-size solar-module p
 
 ## Run
 
-Double-click `start.cmd` (or run `.\start.ps1`) on any Windows machine. On first run it sets everything up automatically:
+On Windows, double-click `start.cmd` or run `.\start.ps1`. On first run the
+Windows launcher sets everything up automatically:
 
 - finds Python 3.10–3.14 and Node 22.13+, installing them via winget if missing;
 - creates `.venv` (recreating it if it was copied from another machine);
@@ -30,6 +31,28 @@ Set-Location ..
 ```
 
 Tested with Python 3.14.3 and PyTorch 2.10.0+cu128. The frontend requires Node 22.13 or newer. The Sites starter is used locally; no deployment is needed.
+
+For a fresh macOS/Linux clone:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+cd web && npm ci && cd ..
+./start.sh
+```
+
+To verify and serve the checked-in production frontend build:
+
+```bash
+cd web
+npm ci
+npm run verify
+npm start
+```
+
+`npm start` serves the production frontend on port 3000. Use the repository
+launcher above for the complete local application with its Python API and
+development proxy.
 
 ## Detection and placement
 
@@ -105,7 +128,7 @@ Obstacle detection now combines Yucan RID with Abbas height-based structures, im
 ```powershell
 .\.venv\Scripts\python.exe -m pytest tests -q
 Set-Location web
-npm.cmd run test:map
+npm.cmd test
 .\node_modules\.bin\tsc.cmd --noEmit
 .\node_modules\.bin\oxlint.cmd app vite.config.ts
 npm.cmd run build
