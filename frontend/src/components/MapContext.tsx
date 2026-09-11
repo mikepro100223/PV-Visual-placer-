@@ -17,7 +17,7 @@ export default function MapContext({
 }) {
   const p = capture.provenance;
   const measured = capture.objects.filter((o) => o.source === "elevation");
-  const windows = capture.objects.filter((o) => o.source === "image");
+  const windows = capture.objects.filter((o) => o.source === "image" && o.kind === "skylight");
   return (
     <section className="map-context">
       <div className="map-context-title">

@@ -16,6 +16,23 @@ MAX_CANDIDATES = 120_000
 OFFSET_STEPS = 4
 
 
+def boundary_offsets(aligned, minimum, stride, extent, axis):
+    """Keep uniform phases and also align modules to real roof/obstacle edges."""
+    points = shapely.get_coordinates(aligned)[:, axis]
+    values = np.concatenate([(points-minimum) % stride,
+                             (points-minimum-extent) % stride])
+    # Repeated coordinates describe long straight edges. Add their phases to
+    # the old search, so this can never discard a previously tested layout.
+    frequencies = {}
+    for value in values:
+        key = round(float(value / stride), 6)
+        frequencies.setdefault(key, [0, float(value)])
+        frequencies[key][0] += 1
+    extra = sorted(frequencies.values(), key=lambda pair: (-pair[0], pair[1]))[:4]
+    return sorted(set([float(v*stride/OFFSET_STEPS) for v in range(OFFSET_STEPS)]
+                      + [pair[1] for pair in extra]))
+
+
 def row_gap(panel, tilt_deg, module_length) -> float:
     """Ground gap that keeps a rack clear of its neighbour's shadow.
 
@@ -63,12 +80,12 @@ def optimise_panels(usable, ppm, panel, angle=0, diagnostics=None, tilted=False)
             raise ValueError(
                 "Scale creates too many candidate panels. Check your measurement or select a smaller roof."
             )
-        for ox in np.arange(OFFSET_STEPS) / OFFSET_STEPS:
-            for oy in np.arange(OFFSET_STEPS) / OFFSET_STEPS:
+        for ox in boundary_offsets(aligned, minx, dx, width, 0):
+            for oy in boundary_offsets(aligned, miny, dy, height, 1):
                 if diagnostics is not None:
                     diagnostics["candidate_layouts_tested"] += 1
-                xs = np.arange(minx + ox * dx, maxx - width + 1e-7, dx)
-                ys = np.arange(miny + oy * dy, maxy - height + 1e-7, dy)
+                xs = np.arange(minx + ox, maxx - width + 1e-7, dx)
+                ys = np.arange(miny + oy, maxy - height + 1e-7, dy)
                 if not len(xs) or not len(ys):
                     continue
                 xx, yy = np.meshgrid(xs, ys)

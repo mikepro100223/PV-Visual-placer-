@@ -1,3 +1,49 @@
+# SolarFit model update ? 10 September 2026
+
+The deployed `rooftop_best.pt` is now the validation-selected **35-epoch PV fine-tune** (YOLO11n-seg, 640 px, batch 8, AdamW initial learning rate 0.001, seed 42). It starts from the 8 September checkpoint and retains the original geographic train/validation/test assignments. Training took 1,562 seconds. Checkpoints were selected on validation; the test set did not select the model or threshold.
+
+| Pixel metric at confidence 0.25 | Previous PV model | Deployed PV model |
+|---|---:|---:|
+| Validation IoU (63 chips) | 0.7997 | 0.8538 |
+| Test IoU (172 chips) | 0.5605 | 0.6087 |
+| Test F1 | 0.7184 | 0.7568 |
+| Test precision | 0.6179 | 0.6953 |
+| Test recall | 0.8580 | 0.8302 |
+
+This is a precision/recall trade-off, not a claim that every installation is found. Comparisons use the same 640-pixel input, 0.25 threshold and retina masks. Ground truth is converted polygon masks; the test set is the existing reused benchmark, not a newly blind national survey. Application heuristics, multi-view inference and roof placement are not included in these pixel scores. Exact checkpoint hashes, counts and per-image results are in `pv-retrain-validation.json` and `pv-retrain-test.json`.
+
+## Geneva obstacle experiments
+
+The provided SITG catalogue has 2D surveyed superstructure footprints, EGIDs, absolute elevations and survey dates, **not chimney/window subtype labels or exhaustive occupancy**. Prepared 600 georeferenced 64 m SWISSIMAGE chips at 10 cm/pixel: 409 train / 59 validation / 132 test, containing 5,816 / 496 / 2,351 polygon labels. Splits use 512 m blocks, discarded boundary chips and removal of cross-split EGIDs. Source and split records are included.
+
+Two real models were trained locally:
+
+- YOLO11n-seg (early-stopped after 33 epochs): no accepted validation detections at confidence 0.25. Rejected for deployment.
+- Full-resolution U-Net (30 epochs): validation IoU 0.0489; test IoU 0.0632, precision 0.0731, recall 0.3177, using a validation-selected threshold of 0.5. **Rejected for automatic deployment.** `geneva_obstacle_research.pt` is a reproducible research checkpoint, not the application's `obstacle_best.pt`.
+
+Do not interpret these low scores as an accurate all-obstacle detector. The sampled overlays show cadastral/image displacement; survey dates and imagery dates can differ, and missing labels treat real unrecorded objects as background. Better aligned, manually reviewed annotations are necessary before claiming image-based obstacle accuracy. The app continues to use surveyed Geneva footprints, DSM roof residuals and labelled image heuristics; compact two-cell raised vents are now preserved, while isolated noisy cells and thin neighbouring roof edges remain rejected.
+
+`geneva-roof-evaluation.json` and its GeoJSON map 105 complete Sonnendach faces on 12 held-out Geneva chips into surface-metre usable areas after surveyed obstacles, detected PV and clearances. This is a georeferenced reference calculation before shade/structural checks, **not an independent usable-area accuracy score**.
+
+## Reproduction
+
+```
+python -m training.train_yolo --model .cache/rooftop-before-retraining.pt --epochs 35 --imgsz 640 --batch 8 --name pv_retrain
+python -m training.prepare_geneva --output data/geneva_clean
+python -m training.train_yolo --data data/geneva_clean/dataset.yaml --model yolo11n-seg.pt --epochs 40 --imgsz 640 --batch 8 --name geneva_obstacles
+python -m training.train_obstacles --data data/geneva_clean
+python -m training.evaluate_obstacles
+python -m training.evaluate_geneva_roofs --obstacle-source survey
+```
+
+The previous PV checkpoint remains in Git history and locally at `.cache/rooftop-before-retraining.pt`. Restore it there to reproduce the fine-tune. Survey services can change; the manifest and source checksum identify this run. Research checkpoints contain only a tensor state dictionary and primitive metadata and are loaded with `weights_only=True`.
+
+Sources: [Swiss PV dataset](https://www.kaggle.com/datasets/jeanprbt/swiss-solar-panels-segmentation), [SITG superstructures](https://sitg.ge.ch/donnees/cad-batiment-horsol-toit-sp), [STDL label limitations](https://tech.stdl.ch/PROJ-ROOFTOPS/#24-ground-truth), [SWISSIMAGE](https://www.swisstopo.admin.ch/en/orthoimage-swissimage-10), [Sonnendach](https://opendata.swiss/de/dataset/eignung-von-hausdachern-fur-die-nutzung-von-sonnenenergie).
+
+---
+
+The following is the historical 8 September baseline card, retained for provenance; it does not describe the newly deployed checkpoint.
+
 # SolarFit Swiss PV baseline
 
 **Model:** YOLO11n-seg, approximately 2.84 million parameters. Checkpoint: `rooftop_best.pt` (~6 MB). Trained locally on 8 September 2026 with an NVIDIA GeForce RTX 4070 Laptop GPU (8 GB VRAM), PyTorch 2.10.0+cu128 and Ultralytics 8.4.144.

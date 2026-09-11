@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field, model_validator
 import math
 
 Point = tuple[float, float]
+MAX_OBJECT_VERTICES = 4096
 
 
 class PanelConfig(BaseModel):
@@ -21,7 +22,9 @@ class PanelConfig(BaseModel):
 
 class MarkedObject(BaseModel):
     source: Literal["manual", "map", "elevation", "image", "terrain"] = "manual"
-    polygon: list[Point] = Field(min_length=3, max_length=200)
+    # Segmented array boundaries are much more detailed than a hand-drawn roof.
+    # Keep their concavities instead of truncating them or filling their hull.
+    polygon: list[Point] = Field(min_length=3, max_length=MAX_OBJECT_VERTICES)
     kind: Literal["existing_pv", "chimney", "skylight", "rwa", "other_obstacle"] = (
         "other_obstacle"
     )
@@ -62,9 +65,14 @@ class AnalysisSettings(BaseModel):
 
     @model_validator(mode="after")
     def finite_coordinates(self):
-        for polygon in [self.roof] + [o.polygon for o in self.objects] + list(self.face_overrides.values()) + ([self.building_override] if self.building_override else []):
+        boundaries = [self.roof] + list(self.face_overrides.values()) + ([self.building_override] if self.building_override else [])
+        for polygon in boundaries:
             if not 3 <= len(polygon) <= 200:
                 raise ValueError("Polygons need 3 to 200 vertices")
+        polygons = boundaries + [o.polygon for o in self.objects]
+        if sum(map(len, polygons)) > 100_000:
+            raise ValueError("The analysis contains too many polygon vertices")
+        for polygon in polygons:
             if any(not math.isfinite(v) for point in polygon for v in point):
                 raise ValueError("Coordinates must be finite")
         return self

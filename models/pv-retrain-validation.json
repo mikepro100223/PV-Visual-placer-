@@ -1,0 +1,1558 @@
+[
+  {
+    "model": "models/rooftop_best.pt",
+    "sha256": "14cb6b82a44445aef1b27bebe2bdff3a98a1c58e6ea35947126e22ab7d43d52e",
+    "split": "val",
+    "tiles": 63,
+    "confidence": 0.25,
+    "imgsz": 640,
+    "retina_masks": true,
+    "pixel_counts": {
+      "tp": 224967,
+      "fp": 43269,
+      "fn": 13070
+    },
+    "metrics": {
+      "iou": 0.7997234328453713,
+      "f1": 0.888718142188108,
+      "precision": 0.838690556077484,
+      "recall": 0.9450925696425345
+    },
+    "images": [
+      {
+        "image": "swissimage-dop10_2021_2626.1-1171.0_512_0.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          516
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.1-1171.0_512_512.jpg",
+        "iou": 0.9711497666525244,
+        "f1": 0.9853637537666811,
+        "precision": 0.9825721153846154,
+        "recall": 0.9881713002935589,
+        "counts": [
+          11445,
+          203,
+          137
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.3-1171.1_512_512.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": null,
+        "counts": [
+          0,
+          1472,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.5-1171.3_0_0.jpg",
+        "iou": 0.8478621146834604,
+        "f1": 0.9176681614349775,
+        "precision": 0.9598499061913696,
+        "recall": 0.8790378006872852,
+        "counts": [
+          2558,
+          107,
+          352
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.5-1171.3_512_0.jpg",
+        "iou": 0.9074515141204491,
+        "f1": 0.9514805565465573,
+        "precision": 0.953180843459614,
+        "recall": 0.9497863247863247,
+        "counts": [
+          2667,
+          131,
+          141
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.5-1171.3_512_512.jpg",
+        "iou": 0.8777743044701469,
+        "f1": 0.9349092725153987,
+        "precision": 0.9646169701133631,
+        "recall": 0.9069767441860465,
+        "counts": [
+          2808,
+          103,
+          288
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.5-1171.4_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.5-1171.4_0_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.6-1171.5_0_512.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          70
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.6-1171.5_512_512.jpg",
+        "iou": 0.9270990447461036,
+        "f1": 0.9621706235324811,
+        "precision": 0.935723951285521,
+        "recall": 0.9901557186325398,
+        "counts": [
+          5532,
+          380,
+          55
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.9-1171.6_512_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.0-1224.6_0_0.jpg",
+        "iou": 0.8899018232819075,
+        "f1": 0.9417439703153989,
+        "precision": 0.9420935412026726,
+        "recall": 0.9413946587537092,
+        "counts": [
+          1269,
+          78,
+          79
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.0-1224.6_512_0.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "counts": [
+          0,
+          800,
+          244
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.0-1224.6_512_512.jpg",
+        "iou": 0.5872765509989485,
+        "f1": 0.7399801258694932,
+        "precision": 0.6335791264889393,
+        "recall": 0.8893312101910829,
+        "counts": [
+          2234,
+          1292,
+          278
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.2-1224.8_0_0.jpg",
+        "iou": 0.8607118230520342,
+        "f1": 0.9251425313568985,
+        "precision": 0.8932375526380976,
+        "recall": 0.9594111212936411,
+        "counts": [
+          32454,
+          3879,
+          1373
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.2-1224.8_0_512.jpg",
+        "iou": 0.9037592385813793,
+        "f1": 0.949446989163222,
+        "precision": 0.9484315567252876,
+        "recall": 0.9504645982646299,
+        "counts": [
+          101982,
+          5545,
+          5315
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.3-1224.5_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.3-1224.5_0_512.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": null,
+        "counts": [
+          0,
+          2384,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.3-1224.5_512_0.jpg",
+        "iou": 0.7398452611218569,
+        "f1": 0.8504724847137298,
+        "precision": 0.7574257425742574,
+        "recall": 0.9695817490494296,
+        "counts": [
+          1530,
+          490,
+          48
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.3-1224.5_512_512.jpg",
+        "iou": 0.5979926043317485,
+        "f1": 0.7484297520661157,
+        "precision": 0.9041533546325878,
+        "recall": 0.6384658770445573,
+        "counts": [
+          1132,
+          120,
+          641
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.4-1224.8_512_512.jpg",
+        "iou": 0.20275590551181102,
+        "f1": 0.337152209492635,
+        "precision": 0.8547717842323651,
+        "recall": 0.20998980632008155,
+        "counts": [
+          412,
+          70,
+          1550
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.8-1224.8_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.8-1224.9_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.0-1238.2_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.0-1238.3_512_0.jpg",
+        "iou": 0.8163265306122449,
+        "f1": 0.898876404494382,
+        "precision": 0.8402800933644549,
+        "recall": 0.9662576687116564,
+        "counts": [
+          10080,
+          1916,
+          352
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.0-1238.4_512_512.jpg",
+        "iou": 0.8450586264656617,
+        "f1": 0.9160236041761235,
+        "precision": 0.940354147250699,
+        "recall": 0.8929203539823009,
+        "counts": [
+          1009,
+          64,
+          121
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.0-1238.5_0_512.jpg",
+        "iou": 0.877025738798856,
+        "f1": 0.9344845099035043,
+        "precision": 0.9349593495934959,
+        "recall": 0.934010152284264,
+        "counts": [
+          920,
+          64,
+          65
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.0-1238.5_512_0.jpg",
+        "iou": 0.480880195599022,
+        "f1": 0.6494518557654206,
+        "precision": 0.4815866797257591,
+        "recall": 0.9969586374695864,
+        "counts": [
+          4917,
+          5293,
+          15
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.0-1238.6_512_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.0-1238.6_512_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.1-1238.2_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.1-1238.3_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.1-1238.3_0_512.jpg",
+        "iou": 0.9311926605504587,
+        "f1": 0.9643705463182898,
+        "precision": 0.9583005507474429,
+        "recall": 0.9705179282868526,
+        "counts": [
+          4872,
+          212,
+          148
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.2-1238.4_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.2-1238.4_512_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2693.1-1203.5_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2693.4-1203.8_512_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.5-1276.9_0_512.jpg",
+        "iou": 0.9128319875474268,
+        "f1": 0.9544298647136609,
+        "precision": 0.9566680261011419,
+        "recall": 0.9522021514105947,
+        "counts": [
+          9383,
+          425,
+          471
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.5-1276.9_512_0.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": null,
+        "counts": [
+          0,
+          877,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.7-1276.6_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.7-1276.6_512_512.jpg",
+        "iou": 0.7575962187711006,
+        "f1": 0.8620822128313484,
+        "precision": 0.7687564234326825,
+        "recall": 0.9811980760822038,
+        "counts": [
+          2244,
+          675,
+          43
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.7-1276.8_512_0.jpg",
+        "iou": 0.6864374763883642,
+        "f1": 0.8140681003584229,
+        "precision": 0.6943064577760795,
+        "recall": 0.983757444504602,
+        "counts": [
+          1817,
+          800,
+          30
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.7-1276.8_512_512.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": null,
+        "counts": [
+          0,
+          1962,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.7-1276.9_0_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.7-1276.9_512_0.jpg",
+        "iou": 0.49500998003992014,
+        "f1": 0.6622162883845126,
+        "precision": 0.49865951742627346,
+        "recall": 0.9854304635761589,
+        "counts": [
+          744,
+          748,
+          11
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.8-1276.9_0_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.8-1276.9_512_0.jpg",
+        "iou": 0.9097050213915785,
+        "f1": 0.9527178398773729,
+        "precision": 0.9474671669793621,
+        "recall": 0.958027033436092,
+        "counts": [
+          4040,
+          224,
+          177
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.8-1276.9_512_512.jpg",
+        "iou": 0.9585352719439957,
+        "f1": 0.9788287049766291,
+        "precision": 0.9663409337676439,
+        "recall": 0.9916434540389972,
+        "counts": [
+          1780,
+          62,
+          15
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.9-1276.6_0_0.jpg",
+        "iou": 0.8494077834179357,
+        "f1": 0.918572735590119,
+        "precision": 0.8807017543859649,
+        "recall": 0.9598470363288719,
+        "counts": [
+          502,
+          68,
+          21
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.9-1276.6_512_0.jpg",
+        "iou": 0.9501149114505881,
+        "f1": 0.974419410745234,
+        "precision": 0.9716576800774229,
+        "recall": 0.9771968854282537,
+        "counts": [
+          7028,
+          205,
+          164
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.9-1276.7_0_512.jpg",
+        "iou": 0.9322083212103579,
+        "f1": 0.9649149224514381,
+        "precision": 0.9621621621621622,
+        "recall": 0.9676834793113863,
+        "counts": [
+          3204,
+          126,
+          107
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.9-1276.9_0_0.jpg",
+        "iou": 0.6665676077265973,
+        "f1": 0.7999286733238231,
+        "precision": 0.6882479288125192,
+        "recall": 0.9548744146445296,
+        "counts": [
+          2243,
+          1016,
+          106
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.9-1276.9_512_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.6-1243.0_0_0.jpg",
+        "iou": 0.8245614035087719,
+        "f1": 0.9038461538461539,
+        "precision": 0.9379157427937915,
+        "recall": 0.8721649484536083,
+        "counts": [
+          423,
+          28,
+          62
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.6-1243.0_0_512.jpg",
+        "iou": 0.08051585918438481,
+        "f1": 0.14903225806451612,
+        "precision": 0.08155339805825243,
+        "recall": 0.8635514018691589,
+        "counts": [
+          462,
+          5203,
+          73
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.6-1243.1_512_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.6-1243.6_512_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.7-1243.0_0_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.7-1243.0_512_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.7-1243.0_512_512.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": null,
+        "counts": [
+          0,
+          6052,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.8-1243.0_512_0.jpg",
+        "iou": 0.943276706017852,
+        "f1": 0.9708104904430286,
+        "precision": 0.9438202247191011,
+        "recall": 0.9993898718730934,
+        "counts": [
+          3276,
+          195,
+          2
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.9-1243.0_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.9-1243.4_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "model": "runs/segment/pv_retrain_20260910/weights/best.pt",
+    "sha256": "56e8486d64dc4ac5131a04abaec0ec65d10c30413ed7d81c2b458cb3095bd2fe",
+    "split": "val",
+    "tiles": 63,
+    "confidence": 0.25,
+    "imgsz": 640,
+    "retina_masks": true,
+    "pixel_counts": {
+      "tp": 229901,
+      "fp": 31246,
+      "fn": 8136
+    },
+    "metrics": {
+      "iou": 0.8537523720398242,
+      "f1": 0.9211072470271483,
+      "precision": 0.8803509134701911,
+      "recall": 0.9658204396795456
+    },
+    "images": [
+      {
+        "image": "swissimage-dop10_2021_2626.1-1171.0_512_0.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          516
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.1-1171.0_512_512.jpg",
+        "iou": 0.9703375383566314,
+        "f1": 0.9849454922997058,
+        "precision": 0.9869949713889371,
+        "recall": 0.9829045069936108,
+        "counts": [
+          11384,
+          150,
+          198
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.3-1171.1_512_512.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": null,
+        "counts": [
+          0,
+          1539,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.5-1171.3_0_0.jpg",
+        "iou": 0.8836206896551724,
+        "f1": 0.9382151029748284,
+        "precision": 0.961746661854926,
+        "recall": 0.915807560137457,
+        "counts": [
+          2665,
+          106,
+          245
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.5-1171.3_512_0.jpg",
+        "iou": 0.9179841897233202,
+        "f1": 0.9572385368366821,
+        "precision": 0.9243781094527364,
+        "recall": 0.9925213675213675,
+        "counts": [
+          2787,
+          228,
+          21
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.5-1171.3_512_512.jpg",
+        "iou": 0.8959304131717925,
+        "f1": 0.9451089628051778,
+        "precision": 0.9590954439640837,
+        "recall": 0.9315245478036176,
+        "counts": [
+          2884,
+          123,
+          212
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.5-1171.4_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.5-1171.4_0_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.6-1171.5_0_512.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          70
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.6-1171.5_512_512.jpg",
+        "iou": 0.92876254180602,
+        "f1": 0.9630657187445812,
+        "precision": 0.9339162602993106,
+        "recall": 0.9940934311795239,
+        "counts": [
+          5554,
+          393,
+          33
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2626.9-1171.6_512_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.0-1224.6_0_0.jpg",
+        "iou": 0.9054054054054054,
+        "f1": 0.950354609929078,
+        "precision": 0.9564237415477085,
+        "recall": 0.9443620178041543,
+        "counts": [
+          1273,
+          58,
+          75
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.0-1224.6_512_0.jpg",
+        "iou": 0.07934336525307797,
+        "f1": 0.14702154626108999,
+        "precision": 0.08195949128591616,
+        "recall": 0.7131147540983607,
+        "counts": [
+          174,
+          1949,
+          70
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.0-1224.6_512_512.jpg",
+        "iou": 0.4439564636242123,
+        "f1": 0.6149166887066914,
+        "precision": 0.4603960396039604,
+        "recall": 0.9255573248407644,
+        "counts": [
+          2325,
+          2725,
+          187
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.2-1224.8_0_0.jpg",
+        "iou": 0.8716624306523462,
+        "f1": 0.9314312414216044,
+        "precision": 0.9202515941025419,
+        "recall": 0.9428858604073669,
+        "counts": [
+          31895,
+          2764,
+          1932
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.2-1224.8_0_512.jpg",
+        "iou": 0.9466514501023495,
+        "f1": 0.9725947087780683,
+        "precision": 0.9711126596980255,
+        "recall": 0.9740812883864414,
+        "counts": [
+          104516,
+          3109,
+          2781
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.3-1224.5_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.3-1224.5_0_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.3-1224.5_512_0.jpg",
+        "iou": 0.7581602373887241,
+        "f1": 0.8624472573839662,
+        "precision": 0.7754172989377845,
+        "recall": 0.9714828897338403,
+        "counts": [
+          1533,
+          444,
+          45
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.3-1224.5_512_512.jpg",
+        "iou": 0.7690792712949286,
+        "f1": 0.8694684107987753,
+        "precision": 0.8582417582417582,
+        "recall": 0.8809926677946982,
+        "counts": [
+          1562,
+          258,
+          211
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.4-1224.8_512_512.jpg",
+        "iou": 0.8617072007629948,
+        "f1": 0.9257172131147541,
+        "precision": 0.9304840370751802,
+        "recall": 0.9209989806320081,
+        "counts": [
+          1807,
+          135,
+          155
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.8-1224.8_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2650.8-1224.9_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.0-1238.2_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.0-1238.3_512_0.jpg",
+        "iou": 0.8359244399866266,
+        "f1": 0.9106305486000456,
+        "precision": 0.8671637908610076,
+        "recall": 0.9586848159509203,
+        "counts": [
+          10001,
+          1532,
+          431
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.0-1238.4_512_512.jpg",
+        "iou": 0.8555194805194806,
+        "f1": 0.9221347331583553,
+        "precision": 0.9117647058823529,
+        "recall": 0.9327433628318584,
+        "counts": [
+          1054,
+          102,
+          76
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.0-1238.5_0_512.jpg",
+        "iou": 0.8794063079777366,
+        "f1": 0.9358341559723593,
+        "precision": 0.9106628242074928,
+        "recall": 0.9624365482233502,
+        "counts": [
+          948,
+          93,
+          37
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.0-1238.5_512_0.jpg",
+        "iou": 0.6464783020143301,
+        "f1": 0.7852861482880368,
+        "precision": 0.6598592521043191,
+        "recall": 0.9695863746958637,
+        "counts": [
+          4782,
+          2465,
+          150
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.0-1238.6_512_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.0-1238.6_512_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.1-1238.2_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.1-1238.3_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.1-1238.3_0_512.jpg",
+        "iou": 0.9375119070299105,
+        "f1": 0.967748279252704,
+        "precision": 0.9555339805825243,
+        "recall": 0.9802788844621514,
+        "counts": [
+          4921,
+          229,
+          99
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.2-1238.4_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2021_2661.2-1238.4_512_512.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": null,
+        "counts": [
+          0,
+          1457,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2693.1-1203.5_0_0.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": null,
+        "counts": [
+          0,
+          1739,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2693.4-1203.8_512_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.5-1276.9_0_512.jpg",
+        "iou": 0.953395988760779,
+        "f1": 0.9761420564456128,
+        "precision": 0.9546909867080625,
+        "recall": 0.9985792571544551,
+        "counts": [
+          9840,
+          467,
+          14
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.5-1276.9_512_0.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": null,
+        "counts": [
+          0,
+          920,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.7-1276.6_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.7-1276.6_512_512.jpg",
+        "iou": 0.632324354346015,
+        "f1": 0.7747533174549166,
+        "precision": 0.6340852130325815,
+        "recall": 0.9956274595540009,
+        "counts": [
+          2277,
+          1314,
+          10
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.7-1276.8_512_0.jpg",
+        "iou": 0.7610619469026548,
+        "f1": 0.864321608040201,
+        "precision": 0.774442538593482,
+        "recall": 0.9778018408229562,
+        "counts": [
+          1806,
+          526,
+          41
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.7-1276.8_512_512.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": null,
+        "counts": [
+          0,
+          2093,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.7-1276.9_0_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.7-1276.9_512_0.jpg",
+        "iou": 0.44874851013110845,
+        "f1": 0.6194981489099136,
+        "precision": 0.44928400954653935,
+        "recall": 0.9973509933774835,
+        "counts": [
+          753,
+          923,
+          2
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.8-1276.9_0_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.8-1276.9_512_0.jpg",
+        "iou": 0.894759825327511,
+        "f1": 0.9444572482138741,
+        "precision": 0.9186281102891728,
+        "recall": 0.9717808868864122,
+        "counts": [
+          4098,
+          363,
+          119
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.8-1276.9_512_512.jpg",
+        "iou": 0.9459172852598091,
+        "f1": 0.9722070844686649,
+        "precision": 0.9514666666666667,
+        "recall": 0.9938718662952646,
+        "counts": [
+          1784,
+          91,
+          11
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.9-1276.6_0_0.jpg",
+        "iou": 0.3448275862068966,
+        "f1": 0.5128205128205128,
+        "precision": 0.3478854024556617,
+        "recall": 0.9751434034416826,
+        "counts": [
+          510,
+          956,
+          13
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.9-1276.6_512_0.jpg",
+        "iou": 0.9592387636658118,
+        "f1": 0.9791953706255166,
+        "precision": 0.9703713817586018,
+        "recall": 0.9881813125695217,
+        "counts": [
+          7107,
+          217,
+          85
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.9-1276.7_0_512.jpg",
+        "iou": 0.9126625211984172,
+        "f1": 0.9543372247672528,
+        "precision": 0.9343171296296297,
+        "recall": 0.9752340682573241,
+        "counts": [
+          3229,
+          227,
+          82
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.9-1276.9_0_0.jpg",
+        "iou": 0.6579099307159353,
+        "f1": 0.7936618492077312,
+        "precision": 0.6714790807307013,
+        "recall": 0.9702000851426139,
+        "counts": [
+          2279,
+          1115,
+          70
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2022_2701.9-1276.9_512_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.6-1243.0_0_0.jpg",
+        "iou": 0.6322378716744914,
+        "f1": 0.7746883988494727,
+        "precision": 0.7240143369175627,
+        "recall": 0.8329896907216495,
+        "counts": [
+          404,
+          154,
+          81
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.6-1243.0_0_512.jpg",
+        "iou": 0.8563829787234043,
+        "f1": 0.9226361031518625,
+        "precision": 0.943359375,
+        "recall": 0.902803738317757,
+        "counts": [
+          483,
+          29,
+          52
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.6-1243.1_512_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.6-1243.6_512_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.7-1243.0_0_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.7-1243.0_512_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.7-1243.0_512_512.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.8-1243.0_512_0.jpg",
+        "iou": 0.9249504389691305,
+        "f1": 0.9610122112696778,
+        "precision": 0.9281045751633987,
+        "recall": 0.99633923123856,
+        "counts": [
+          3266,
+          253,
+          12
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.9-1243.0_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "swissimage-dop10_2023_2594.9-1243.4_0_0.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  }
+]

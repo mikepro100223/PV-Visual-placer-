@@ -1,0 +1,13 @@
+{
+  "address": "Bleichemattstrasse 31, 5000 Aarau",
+  "latitude": 47.390547,
+  "longitude": 8.054623,
+  "imagery_year": 2024,
+  "height_model_year": 2020,
+  "fan_banks": 2,
+  "additional_panels_before_fan_exclusion": 240,
+  "additional_panels_after_fan_exclusion": 192,
+  "source": "SWISSIMAGE / swisstopo",
+  "method": "Repeated dark circular fan units on brighter housings; image heuristic, not trained obstacle classification",
+  "limitations": "Counts depend on selected layout settings; not a capacity ground-truth evaluation."
+}

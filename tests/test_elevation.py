@@ -131,6 +131,21 @@ def test_edge_slivers_are_not_structures():
     assert es.detect(heights, MINX, MAXY, [facet()]) == []
 
 
+def test_compact_two_cell_vent_is_not_lost_as_a_degenerate_line():
+    heights = roof()
+    heights[18,18:20] += 1.2
+    found = es.detect(heights, MINX, MAXY, [facet()])
+    assert len(found) == 1
+    assert found[0]["area_m2"] == pytest.approx(.5)
+    assert found[0]["height_m"] == pytest.approx(1.2,abs=.01)
+
+
+def test_narrow_tall_neighbour_edge_is_still_rejected():
+    heights = roof()
+    heights[18,10:25] += 3
+    assert es.detect(heights, MINX, MAXY, [facet()]) == []
+
+
 def test_terrain_exclusion_with_missing_residual_has_json_safe_unknown_height():
     import json
     heights = roof()

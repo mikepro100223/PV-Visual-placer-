@@ -310,3 +310,20 @@ def test_glazing_is_not_claimed_as_an_array():
 def test_a_real_array_survives_the_brightness_ceiling():
     image = put_array(roof_image(), 60, 60, 180, 170)
     assert pv.detect(image, ROOF, PPM)
+
+
+def test_a_slit_ring_still_fits_through_the_api():
+    """Opening a ring folds its hole into the exterior, so two outlines that
+    each fit the vertex budget become one that does not."""
+    rng = np.random.default_rng(5)
+    outer = [(50 + 45 * np.cos(a) + rng.normal(0, 0.6),
+              50 + 45 * np.sin(a) + rng.normal(0, 0.6))
+             for a in np.linspace(0, 2 * np.pi, 400, endpoint=False)]
+    inner = [(50 + 20 * np.cos(a) + rng.normal(0, 0.6),
+              50 + 20 * np.sin(a) + rng.normal(0, 0.6))
+             for a in np.linspace(0, 2 * np.pi, 400, endpoint=False)][::-1]
+    ring = Polygon(outer, [inner])
+    for piece in pv.without_holes(ring):
+        fitted = pv.fit_vertices(piece, 0.5)
+        assert fitted is not None
+        assert len(fitted.exterior.coords) - 1 <= pv.MAX_VERTICES

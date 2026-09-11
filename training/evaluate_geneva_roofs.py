@@ -29,19 +29,22 @@ def mask_geometry(model, image):
 async def evaluate(args):
     root = Path(args.data)
     records = [r for r in json.loads((root/'split_manifest.json').read_text()) if r['split']=='test'][:args.chips]
-    obstacle_model, pv_model = YOLO(args.obstacle_model), YOLO(args.pv_model)
+    obstacle_model = YOLO(args.obstacle_model) if args.obstacle_source == 'model' else None
+    pv_model = YOLO(args.pv_model)
     features, rows, skipped = [], [], []
     async with httpx.AsyncClient(timeout=40) as client:
         for record in records:
             bbox, name = record['bbox'], record['source']
             image = Image.open(root/'images/test'/f'{name}.jpg').convert('RGB')
-            obstacles = image_to_world(mask_geometry(obstacle_model, image), bbox)
+            obstacles = image_to_world(mask_geometry(obstacle_model, image), bbox) if obstacle_model else None
             pv = image_to_world(mask_geometry(pv_model, image), bbox)
             truth = []
             for line in (root/'labels/test'/f'{name}.txt').read_text().splitlines():
                 points = np.array(list(map(float,line.split()[1:]))).reshape(-1,2)*640
                 truth.append(image_to_world(Polygon(points),bbox))
             truth = unary_union(truth)
+            if obstacles is None:
+                obstacles = truth
             cache = root/f'{name}-sonnendach.json'
             if cache.exists():
                 data = json.loads(cache.read_text())
@@ -76,16 +79,17 @@ async def evaluate(args):
                     'projected_area_m2':roof.area, 'roof_surface_area_m2':local.area,
                     'detected_obstacle_area_m2':detected.area,'survey_obstacle_area_m2':reference.area,
                     'detected_pv_area_m2':existing.area,'usable_surface_area_m2':usable.area,
-                    'survey_reference_clear_area_error_m2':clear.area-reference_clear.area,
-                    'survey_obstacle_iou':detected.intersection(reference).area/union if union else None}
+                    'survey_reference_clear_area_error_m2':clear.area-reference_clear.area if obstacle_model else None,
+                    'survey_obstacle_iou':detected.intersection(reference).area/union if union and obstacle_model else None}
                 rows.append(row)
                 world = plane.world_geometry(usable)
                 features.append({'type':'Feature','geometry':mapping(transform(TO_WGS84.transform,world)),
                     'properties':row})
             print(f"Mapped {name}; {len(rows)} complete roof faces",flush=True)
     report = {'chips':len(records),'complete_faces':len(rows),'skipped_partial_or_unmeasured_faces':len(skipped),
-        'survey_reference_clear_area_mae_m2':float(np.mean([abs(r['survey_reference_clear_area_error_m2']) for r in rows])) if rows else None,
-        'scope':'Surface-metre usable areas after predicted PV, surveyed-superstructure model and 0.3 m edge / 0.4 m obstacle / 0.2 m PV clearances. Before shade and structural checks.',
+        'survey_reference_clear_area_mae_m2':float(np.mean([abs(r['survey_reference_clear_area_error_m2']) for r in rows])) if rows and obstacle_model else None,
+        'obstacle_source':args.obstacle_source,
+        'scope':'Surface-metre usable areas after predicted PV and survey/model obstacles with 0.3 m edge / 0.4 m obstacle / 0.2 m PV clearances. Before shade and structural checks. Survey mode is a reference calculation, not an accuracy evaluation.',
         'limitations':'Catalogue is incomplete and can be displaced from imagery. Reference errors are not exhaustive usable-area or capacity accuracy. Complete roof faces only; building siblings can extend outside the chip.',
         'roofs':rows}
     Path(args.output).write_text(json.dumps(report,indent=2),encoding='utf-8')
@@ -97,6 +101,7 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--data',default='data/geneva_clean')
     parser.add_argument('--obstacle-model',default='models/obstacle_best.pt')
+    parser.add_argument('--obstacle-source',choices=['survey','model'],default='survey')
     parser.add_argument('--pv-model',default='models/rooftop_best.pt')
     parser.add_argument('--chips',type=int,default=12)
     parser.add_argument('--output',default='models/geneva-roof-evaluation.json')

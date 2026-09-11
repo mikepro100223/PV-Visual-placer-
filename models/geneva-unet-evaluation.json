@@ -1,0 +1,33 @@
+{
+  "model_sha256": "8b9c25c7b4878f6ccf2655620852d02d1c4c73b492283d4f5d8597c8d16fa004",
+  "architecture": "ObstacleUNet-v1",
+  "epoch": 30,
+  "validation": {
+    "threshold": 0.5,
+    "iou": 0.04885723409927898,
+    "f1": 0.09316279186697095,
+    "precision": 0.05792641094891145,
+    "recall": 0.23783953390525497,
+    "counts": [
+      33352,
+      542413,
+      106877
+    ]
+  },
+  "test": {
+    "threshold": 0.5,
+    "iou": 0.0632113620495627,
+    "f1": 0.11890648333123442,
+    "precision": 0.07313960080826877,
+    "recall": 0.3177168096246766,
+    "counts": [
+      176092,
+      2231523,
+      378150
+    ]
+  },
+  "test_chips": 132,
+  "deployment": "research_only_not_enabled",
+  "reason": "Insufficient validation precision and IoU; retain surveyed and DSM obstacles in the application.",
+  "limitations": "Incomplete cadastral target and displacement/age mismatch with SWISSIMAGE. Does not measure exhaustive obstacle accuracy."
+}

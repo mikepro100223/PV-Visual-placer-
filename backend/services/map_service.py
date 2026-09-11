@@ -27,6 +27,7 @@ from backend.services import buildings3d_service as buildings3d
 from backend.services.image_alignment import estimate_shift
 from backend.services.rooflight_service import detect as detect_rooflights
 from backend.services.pv_field_service import detect as detect_pv_fields
+from backend.services.hvac_service import detect as detect_hvac
 from backend.services.pv_register_service import RegisterUnavailable, registered_pv
 from backend.services import vintage_service
 from backend.services.geneva_service import superstructures, surveyed_polygons
@@ -936,6 +937,12 @@ async def _prepare_capture(selection: MapSelection) -> dict:
                 objects.append(
                     {"polygon": ring, "kind": "existing_pv", "source": "image"}
                 )
+            pv_regions = [Polygon(o["polygon"]) for o in objects if o["kind"] == "existing_pv"]
+            voids = [Polygon(o["polygon"]) for o in objects if o["source"] == "map" and o["kind"] == "other_obstacle"]
+            equipment_roof = outline.difference(unary_union(voids)) if voids else outline
+            for equipment in detect_hvac(np.asarray(image), equipment_roof, grid["pixels_per_metre"], pv_regions):
+                objects.append({"polygon": list(equipment["geometry"].exterior.coords)[:-1],
+                                "kind": "other_obstacle", "source": "image"})
             already = [Polygon(o["polygon"]) for o in objects]
             already = [p for p in already if p.is_valid]
             for light in detect_rooflights(
@@ -978,7 +985,10 @@ async def _prepare_capture(selection: MapSelection) -> dict:
             "An official roof outline can span a whole block and take in its courtyard."
         )
     raised = [o for o in objects if o["source"] == "elevation"]
-    lights = [o for o in objects if o["source"] == "image" and o["kind"] != "existing_pv"]
+    lights = [o for o in objects if o["source"] == "image" and o["kind"] == "skylight"]
+    equipment = [o for o in objects if o["source"] == "image" and o["kind"] == "other_obstacle"]
+    if equipment:
+        warnings.append(f"Excluded {len(equipment)} likely fan-bank housing(s) from repeated circular features in the image. This is image evidence, not a surveyed or trained equipment classification; verify the footprint.")
     arrays = [o for o in objects if o["source"] == "image" and o["kind"] == "existing_pv"]
     if arrays:
         warnings.append(

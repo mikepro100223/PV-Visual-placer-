@@ -15,6 +15,7 @@ from shapely.ops import transform, unary_union
 from backend.services.runtime_cache import captures
 from backend.services.geometry_service import build_usable, polygon_from_points
 from backend.services.panel_optimizer import flat_roof_layout, optimise_panels
+from backend.services.module_geometry import module_geometry
 from backend.services.energy_service import capacity
 from backend.services.confidence_service import summarise_confidence
 from backend.services.sunlight_service import sunlight_exclusions, public_sunlight
@@ -192,11 +193,13 @@ def analyse_surfaces(image, settings, objects, warnings, model, start=None):
                     {"polygon": list(plane.local_geometry(part).exterior.coords)[:-1]})
         # RWA clearances can reach an adjacent face even when the opening itself
         # does not intersect it. Transform the full footprint before buffering.
-        packing_objects = [o for o in local_objects if "rwa" not in [o["kind"], *o.get("kinds", [])]]
+        packing_objects = []
         for obj in merged:
-            if "rwa" in [obj["kind"], *obj.get("kinds", [])]:
-                for part in parts(obj["world"]):
-                    packing_objects.append({"kind": "rwa", "kinds": obj.get("kinds", []), "polygon": list(plane.local_geometry(part).exterior.coords)[:-1]})
+            # The same projection is used for every nearby obstacle, including
+            # its portion on an adjacent face, so no safety margin disappears.
+            for part in parts(obj["world"]):
+                packing_objects.append({"kind": obj["kind"], "kinds": obj.get("kinds", []),
+                    "polygon": list(plane.local_geometry(part).exterior.coords)[:-1]})
         usable, excluded = build_usable(local, packing_objects, 1, settings)
         angle = 0.
         if not local.is_empty:
@@ -225,7 +228,12 @@ def analyse_surfaces(image, settings, objects, warnings, model, start=None):
                 usable = usable.difference(shaded)
                 panels, orientation = optimise_panels(
                     usable, 1, settings.panel, angle, diagnostics, tilted=tilted)
-            panels = grouped_panels(panels, settings.panel.gap, settings.minimum_array_panels)
+            # Rows separated by their designed rack shadow gap still belong
+            # to one array. Previously a two-module row was discarded even
+            # when several such rows formed a practical connected installation.
+            module_depth = settings.panel.height if orientation == "portrait" else settings.panel.width
+            grouping_gap = max(settings.panel.gap, flat_roof_layout(settings.panel, module_depth)[1]) if tilted else settings.panel.gap
+            panels = grouped_panels(panels, grouping_gap, settings.minimum_array_panels)
             if not panels and assessment["eligible"] and physical_panels:
                 assessment["status"] = "not_recommended"
                 assessment["reasons"].append("After shade screening, no sufficiently large connected module group remains.")
@@ -312,9 +320,9 @@ def analyse_surfaces(image, settings, objects, warnings, model, start=None):
             "solar": f["solar"], "orientation": f["orientation"],
             "local_roof": mapping(f["local"]), "local_usable": mapping(f["usable"]),
             "local_objects": f["objects"], "local_panels": f["panels"],
-            "panels_3d": [{"corners_lv95_ln02": [plane.xyz(*point).tolist() for point in panel]
-                           if f["diagnostics"]["height_is_absolute"] else None,
-                           "normal": plane.normal.tolist(), "surface_corners_m": panel}
+            "panels_3d": [module_geometry(plane, panel, settings.panel,
+                            f["diagnostics"]["alignment_deg"],
+                            f["diagnostics"]["pitch_deg"] <= FLAT_PITCH_DEG)
                           for panel in f["panels"]],
             "geometry_calculation": "Orthonormal 3D roof plane; physical surface metres; projected to the 2D display",
             "diagnostics": {**f["diagnostics"], **stats}})

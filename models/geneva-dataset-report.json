@@ -1,0 +1,19 @@
+{
+  "source": "https://vector.sitg.ge.ch/arcgis/rest/services/CAD_BATIMENT_HORSOL_TOIT_SP/FeatureServer/0/query",
+  "imagery": "SWISSIMAGE / swisstopo",
+  "crs": "EPSG:2056",
+  "metres_per_pixel": 0.1,
+  "counts": {
+    "train": 409,
+    "test": 132,
+    "val": 59
+  },
+  "objects": {
+    "train": 5816,
+    "val": 496,
+    "test": 2351
+  },
+  "label_scope": "Surveyed roof superstructures; incomplete for exhaustive obstacles. No subtype labels.",
+  "limitations": "Survey and current aerial acquisition dates may differ; non-true orthophoto displacement is possible. No manual label review yet.",
+  "split_basis": "512 m blocks, 64 m border discarded, cross-split EGIDs removed before chip sampling"
+}

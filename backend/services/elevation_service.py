@@ -20,7 +20,7 @@ import httpx
 import numpy as np
 from PIL import Image
 from pyproj import Transformer
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, box
 from shapely import contains_xy
 
 STAC = "https://data.geo.admin.ch/api/stac/v0.9/collections"
@@ -344,11 +344,13 @@ def detect(
           # 1 m chimney's four-cell contour into a line and loses it entirely.
           epsilon = min(0.4, 0.02 * cv2.arcLength(contour, True))
           approx = cv2.approxPolyDP(contour, epsilon, True).reshape(-1, 2)
+          cell_bounds = None
           if len(approx) < 3:
               x, y, w, h = cv2.boundingRect(contour)
-              approx = np.array(
-                  [[x, y], [x + w - 1, y], [x + w - 1, y + h - 1], [x, y + h - 1]]
-              )
+              # A two-cell vent has a line for its centre contour. Preserve
+              # the actual cell footprint instead of buffering an empty polygon.
+              cell_bounds = (minx+x*DSM_STEP_M, maxy-(y+h)*DSM_STEP_M,
+                             minx+(x+w)*DSM_STEP_M, maxy-y*DSM_STEP_M)
           patch = np.zeros(mask.shape, np.uint8)
           cv2.drawContours(patch, [contour], -1, 1, -1)
           rises = depth[patch.astype(bool)]
@@ -358,12 +360,13 @@ def detect(
               (minx + (c + 0.5) * DSM_STEP_M, maxy - (r + 0.5) * DSM_STEP_M)
               for c, r in approx
           ]
-          polygon = Polygon(ring)
+          polygon = box(*cell_bounds) if cell_bounds else Polygon(ring)
           if not polygon.is_valid:
               polygon = polygon.buffer(0)
           # The contour traces cell centres, so it stops half a cell short of the
           # structure on every side. Grow it back, which also errs on the safe side.
-          polygon = polygon.buffer(DSM_STEP_M / 2, join_style=2)
+          if cell_bounds is None:
+              polygon = polygon.buffer(DSM_STEP_M / 2, join_style=2)
           if polygon.geom_type != "Polygon" or not polygon.is_valid:
               continue
           area = polygon.area
@@ -371,7 +374,13 @@ def detect(
           ceiling = MAX_DROP_FRACTION if below_roof else MAX_AREA_FRACTION
           if area < floor or area > roof_area * ceiling:
               continue
-          if thickness(polygon) < MIN_THICKNESS_M:
+          # Keep compact, coherently raised two-cell vents. Continue rejecting
+          # long thin strips at adjoining roof edges and isolated noisy cells.
+          compact_vent = (not below_roof and .35 <= area <= .75
+                          and rises.size >= 2 and float(np.median(rises)) >= .7
+                          and max(polygon.bounds[2]-polygon.bounds[0],
+                                  polygon.bounds[3]-polygon.bounds[1]) <= 1.5)
+          if thickness(polygon) < MIN_THICKNESS_M and not compact_vent:
               continue
           found.append(
               {

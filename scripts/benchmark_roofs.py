@@ -42,7 +42,8 @@ def validate(result, settings):
         tree = STRtree(panels)
         for i, panel in enumerate(panels):
             assert usable.buffer(1e-7).covers(panel), f"Outside usable face {face['id']}"
-            assert abs(panel.area-settings.panel.width*settings.panel.height) < 1e-6
+            tilt = settings.panel.flat_roof_tilt_deg if face['diagnostics'].get('mounting') == 'tilted racks' else 0
+            assert abs(panel.area-settings.panel.width*settings.panel.height*np.cos(np.radians(tilt))) < 1e-6
             for j in tree.query(panel):
                 if j > i:
                     assert panel.intersection(panels[j]).area < 1e-8, "Overlapping panels"

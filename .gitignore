@@ -17,3 +17,6 @@ runs/
 
 # Cached swisstopo height tiles (re-downloaded on demand)
 .cache/
+
+# Research-only obstacle checkpoint; not automatically loaded by the app.
+!models/geneva_obstacle_research.pt

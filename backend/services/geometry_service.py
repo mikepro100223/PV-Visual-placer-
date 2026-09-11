@@ -21,8 +21,8 @@ def build_usable(roof, detections, ppm, settings):
     for item in detections:
         geometry = polygon_from_points(item["polygon"])
         is_rwa = "rwa" in [item["kind"], *item.get("kinds", [])]
-        if not is_rwa:
-            geometry = geometry.intersection(roof)
+        # Buffer the full object before intersecting the usable face. A chimney
+        # just across a face boundary still requires clearance on this side.
         margin = (
             settings.pv_margin
             if item["kind"] == "existing_pv"

@@ -1,0 +1,732 @@
+[
+  {
+    "model": "runs/segment/geneva_clean_20260910/weights/best.pt",
+    "sha256": "7ac660dfb6aeacef4297e463ca43bc379867b041d068282503ddf77545b1873a",
+    "split": "val",
+    "tiles": 59,
+    "confidence": 0.25,
+    "imgsz": 640,
+    "retina_masks": true,
+    "pixel_counts": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 140229
+    },
+    "metrics": {
+      "iou": 0.0,
+      "f1": 0.0,
+      "precision": null,
+      "recall": 0.0
+    },
+    "images": [
+      {
+        "image": "geneva_2498112_1116352.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          14643
+        ]
+      },
+      {
+        "image": "geneva_2498112_1116416.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          743
+        ]
+      },
+      {
+        "image": "geneva_2498112_1116544.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          554
+        ]
+      },
+      {
+        "image": "geneva_2498112_1119296.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "geneva_2498112_1119488.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          3005
+        ]
+      },
+      {
+        "image": "geneva_2498112_1119616.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          894
+        ]
+      },
+      {
+        "image": "geneva_2498176_1119296.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          578
+        ]
+      },
+      {
+        "image": "geneva_2498176_1119424.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          134
+        ]
+      },
+      {
+        "image": "geneva_2498240_1116352.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          2126
+        ]
+      },
+      {
+        "image": "geneva_2498240_1116416.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          1083
+        ]
+      },
+      {
+        "image": "geneva_2498240_1116544.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          1742
+        ]
+      },
+      {
+        "image": "geneva_2498240_1119360.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          941
+        ]
+      },
+      {
+        "image": "geneva_2498240_1119552.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          1712
+        ]
+      },
+      {
+        "image": "geneva_2498304_1119360.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          1578
+        ]
+      },
+      {
+        "image": "geneva_2498304_1119616.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          1863
+        ]
+      },
+      {
+        "image": "geneva_2498368_1116544.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          209
+        ]
+      },
+      {
+        "image": "geneva_2498368_1119488.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          280
+        ]
+      },
+      {
+        "image": "geneva_2498432_1116480.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          1122
+        ]
+      },
+      {
+        "image": "geneva_2498432_1119360.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          2334
+        ]
+      },
+      {
+        "image": "geneva_2498432_1119488.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          1372
+        ]
+      },
+      {
+        "image": "geneva_2498432_1119552.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          1158
+        ]
+      },
+      {
+        "image": "geneva_2498624_1116864.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          2220
+        ]
+      },
+      {
+        "image": "geneva_2498624_1117056.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "geneva_2498688_1116864.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          4084
+        ]
+      },
+      {
+        "image": "geneva_2498752_1116864.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          1036
+        ]
+      },
+      {
+        "image": "geneva_2498752_1116992.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "geneva_2498880_1116992.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "geneva_2498880_1117056.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          3593
+        ]
+      },
+      {
+        "image": "geneva_2498944_1116736.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          1136
+        ]
+      },
+      {
+        "image": "geneva_2499200_1116288.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          210
+        ]
+      },
+      {
+        "image": "geneva_2499200_1116544.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          582
+        ]
+      },
+      {
+        "image": "geneva_2499264_1116352.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          2999
+        ]
+      },
+      {
+        "image": "geneva_2499264_1116416.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          478
+        ]
+      },
+      {
+        "image": "geneva_2499264_1116480.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          198
+        ]
+      },
+      {
+        "image": "geneva_2499328_1116288.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          4649
+        ]
+      },
+      {
+        "image": "geneva_2499648_1116864.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          5439
+        ]
+      },
+      {
+        "image": "geneva_2499648_1116928.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          6640
+        ]
+      },
+      {
+        "image": "geneva_2499648_1116992.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          4659
+        ]
+      },
+      {
+        "image": "geneva_2499712_1116800.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          2995
+        ]
+      },
+      {
+        "image": "geneva_2499712_1116864.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          10857
+        ]
+      },
+      {
+        "image": "geneva_2499712_1116992.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          5092
+        ]
+      },
+      {
+        "image": "geneva_2499776_1116864.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          6826
+        ]
+      },
+      {
+        "image": "geneva_2499776_1116928.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "geneva_2499904_1116736.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          6994
+        ]
+      },
+      {
+        "image": "geneva_2499904_1116864.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          10805
+        ]
+      },
+      {
+        "image": "geneva_2499904_1116928.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          3007
+        ]
+      },
+      {
+        "image": "geneva_2499968_1116992.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          13145
+        ]
+      },
+      {
+        "image": "geneva_2500672_1117760.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "geneva_2500736_1118016.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "geneva_2500864_1117760.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          327
+        ]
+      },
+      {
+        "image": "geneva_2500864_1117824.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "geneva_2500864_1118080.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "geneva_2500992_1117824.jpg",
+        "iou": 0.0,
+        "f1": 0.0,
+        "precision": null,
+        "recall": 0.0,
+        "counts": [
+          0,
+          0,
+          4187
+        ]
+      },
+      {
+        "image": "geneva_2501184_1119296.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "geneva_2501312_1119424.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "geneva_2501312_1119616.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "geneva_2501376_1119488.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "geneva_2501440_1116032.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "image": "geneva_2501504_1119424.jpg",
+        "iou": null,
+        "f1": null,
+        "precision": null,
+        "recall": null,
+        "counts": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  }
+]

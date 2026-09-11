@@ -149,37 +149,50 @@ def fill_small_holes(mask: np.ndarray, max_pixels: int) -> np.ndarray:
 
 
 def without_holes(polygon: Polygon) -> list[Polygon]:
-    """The same shape as pieces that have no holes.
+    """Partition a valid mask without filling courtyards or deleting a slit."""
+    from shapely import make_valid
+    from shapely.geometry import LineString
+    from shapely.ops import split, triangulate
 
-    An array can genuinely ring a courtyard, but the analysis carries one
-    outline per object with no interiors, so a ring handed on as its exterior
-    alone silently reclaims the courtyard. Slitting the ring open from each
-    hole turns it into C-shaped pieces that say the same thing and survive the
-    journey.
-    """
-    pending, out = [polygon], []
+    def polygons(geometry):
+        if geometry.geom_type == "Polygon":
+            return [geometry] if not geometry.is_empty else []
+        return [p for child in getattr(geometry, "geoms", []) for p in polygons(child)]
+
+    pending, out = polygons(make_valid(polygon)), []
     while pending:
         current = pending.pop()
-        if current.is_empty or current.geom_type != "Polygon":
-            continue
         if not current.interiors:
             out.append(current)
             continue
-        hole = max(current.interiors, key=lambda r: Polygon(r).area)
-        minx, miny, maxx, maxy = current.bounds
-        centre = Polygon(hole).centroid
-        # A slit narrow enough to cost almost no area, from the hole to beyond
-        # the edge of the shape.
-        slit = Polygon([(centre.x - 0.5, centre.y), (centre.x + 0.5, centre.y),
-                        (centre.x + 0.5, maxy + 1.0), (centre.x - 0.5, maxy + 1.0)])
-        cut = current.difference(slit)
-        parts = list(cut.geoms) if cut.geom_type == "MultiPolygon" else [cut]
-        if all(len(part.interiors) == len(current.interiors) for part in parts):
-            # The slit missed; give up rather than loop, and keep the ring.
-            out.append(Polygon(current.exterior))
-            continue
-        pending.extend(parts)
-    return [p for p in out if not p.is_empty and p.area > 0]
+        hole = max(current.interiors, key=lambda ring: Polygon(ring).area)
+        point = Polygon(hole).representative_point()
+        minx, _, maxx, _ = current.bounds
+        pieces = polygons(split(current, LineString([(minx-1,point.y),(maxx+1,point.y)])))
+        if len(pieces) <= 1:
+            # An exact partition is safer than ever turning the hole into PV.
+            pieces = [piece for triangle in triangulate(current)
+                      for piece in polygons(triangle.intersection(current))]
+        pending.extend(pieces)
+    return [p for p in out if p.area > 0]
+
+
+def fit_vertices(polygon: Polygon, tolerance: float) -> Polygon | None:
+    """Bring an outline within the vertex budget the analysis will accept.
+
+    Slitting a ring open folds the hole's boundary into the exterior, so two
+    outlines that each fit become one that does not, and the analysis is
+    rejected outright rather than losing a single array.
+    """
+    simplified = polygon
+    while len(simplified.exterior.coords) - 1 > MAX_VERTICES:
+        tolerance *= 1.5
+        simplified = polygon.simplify(tolerance, preserve_topology=True)
+        if simplified.geom_type != "Polygon" or simplified.is_empty:
+            return None
+        if tolerance > 1e4:
+            return None
+    return simplified
 
 
 def _components(mask: np.ndarray, min_pixels: float):
@@ -329,6 +342,9 @@ def detect(
             continue
         for piece in without_holes(polygon):
             if piece.area * cell < MIN_AREA_M2:
+                continue
+            piece = fit_vertices(piece, epsilon)
+            if piece is None:
                 continue
             found.append(
                 {
