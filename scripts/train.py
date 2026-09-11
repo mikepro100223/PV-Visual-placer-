@@ -106,7 +106,8 @@ def main():
                            project=str(ROOT/'runs/evaluation'), name=args.dataset)
         report = {k:float(v) for k,v in metrics.results_dict.items()}
         (models/f'{args.dataset}_metrics.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
-        (models/f'{args.dataset}_classes.json').write_text(json.dumps(metrics.summary(),indent=2),encoding='utf-8')
+        (models/f'{args.dataset}_classes.json').write_text(
+            json.dumps(metrics.summary(),indent=2,default=str),encoding='utf-8')
         write_status('ready', checkpoint=str(checkpoint), test_metrics=report,
                      epochs_completed=model.trainer.epoch + 1)
     except BaseException as exc:

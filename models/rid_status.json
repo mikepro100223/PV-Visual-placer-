@@ -1,7 +1,22 @@
 {
-  "dataset": "rid",
-  "state": "failed",
-  "elapsed_seconds": 1735,
-  "epochs_requested": 100,
-  "error": "Object of type int64 is not JSON serializable"
+  "dataset": "rid2-yucan",
+  "state": "ready",
+  "elapsed_seconds": 1666,
+  "epochs_requested": 15,
+  "epochs_completed": 14,
+  "early_stopped": true,
+  "checkpoint": "models/rid_best.pt",
+  "checkpoint_sha256": "ac8d2e68698f48140f8407628bb45269c39eeb95a22deaa89f1ebd95e8279a93",
+  "test_metrics": {
+    "metrics/precision(B)": 0.451,
+    "metrics/recall(B)": 0.392,
+    "metrics/mAP50(B)": 0.361,
+    "metrics/mAP50-95(B)": 0.216,
+    "metrics/precision(M)": 0.410,
+    "metrics/recall(M)": 0.382,
+    "metrics/mAP50(M)": 0.326,
+    "metrics/mAP50-95(M)": 0.188
+  },
+  "promotion": "Passed mapped RID2 validation/test and six-roof system gates at obstacle confidence 0.30.",
+  "rollback_checkpoint": "artifacts/checkpoints/rid_best_yucan_b7314a7_c9be26fb.pt"
 }

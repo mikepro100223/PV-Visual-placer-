@@ -4,6 +4,11 @@ import type { Map as LeafletMap, GeoJSON as LeafletGeoJSON } from 'leaflet';
 import type { FeatureCollection } from 'geojson';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  SWISS_AERIAL_URL,
+  SWISS_CITY_CONTEXT_URL,
+  cityLabelsAreVisible,
+} from '@/lib/map-layers.mjs';
 import 'leaflet/dist/leaflet.css';
 type ModelState = { state: string; available: boolean; epoch?: number; epochs_requested?: number };
 type Facet = { id: number; pitch_deg: number; azimuth_deg: number; panel_count: number; usable_area_m2: number };
@@ -31,7 +36,7 @@ export default function Home() {
   const [searching, setSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<{ label: string; lat: number; lon: number }[]>([]);
   const [confidence, setConfidence] = useState(.25);
-  const [obstacleConfidence, setObstacleConfidence] = useState(.25);
+  const [obstacleConfidence, setObstacleConfidence] = useState(.30);
   const [setback, setSetback] = useState(.6);
   const [rowGap, setRowGap] = useState(.35);
   const [selected, setSelected] = useState<[number, number] | null>(null);
@@ -50,6 +55,7 @@ export default function Home() {
           const kind = feature?.properties?.kind;
           return kind === 'panel' ? { color: '#66f5ba', weight: 1, fillColor: '#11bc82', fillOpacity: .55 }
             : kind === 'pv' ? { color: '#55aaff', fillColor: '#2585ef', weight: 2, fillOpacity: .6 }
+            : kind === 'obstacle' && feature?.properties?.blocks_placement === false ? { color: '#f2b84b', fillColor: '#f2b84b', weight: 2, fillOpacity: .16, dashArray: '6 5' }
             : kind === 'obstacle' ? { color: '#ff814f', fillColor: '#ff814f', weight: 2, fillOpacity: .6 }
             : kind === 'free' ? { color: '#b3e8db', weight: 0, fillOpacity: .12 }
             : { color: '#f5e06a', weight: 2, fillOpacity: .03 };
@@ -59,7 +65,7 @@ export default function Home() {
           const text = p.kind === 'roof' ? `Roof: ${p.pitch}° pitch, ${Math.round(p.azimuth)}° direction`
             : p.kind === 'panel' ? 'New module · 450 W · 1.762 × 1.134 m'
             : p.kind === 'free' ? 'Roof without detected PV or obstacles'
-            : `${String(p.label).replaceAll('_', ' ')} · ${typeof p.confidence === 'number' ? `${Math.round(p.confidence * 100)}% confidence` : String(p.source ?? 'measured').replaceAll('_', ' ')}`;
+            : `${String(p.label).replaceAll('_', ' ')} · ${typeof p.confidence === 'number' ? `${Math.round(p.confidence * 100)}% confidence` : String(p.source ?? 'measured').replaceAll('_', ' ')}${p.blocks_placement === false ? ' · advisory only' : ''}`;
           layer.bindTooltip(text);
         },
       }).addTo(map.current!);
@@ -75,9 +81,21 @@ export default function Home() {
     void import('leaflet').then(L => {
       if (disposed || !mapElement.current) return;
       const instance = L.map(mapElement.current, { maxZoom: 22 }).setView([47.3917, 8.0452], 19);
-      L.tileLayer('https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.swissimage/default/current/3857/{z}/{x}/{y}.jpeg', {
+      const aerial = L.tileLayer(SWISS_AERIAL_URL, {
         attribution: '© swisstopo · Sonnendach / SFOE', maxNativeZoom: 20, maxZoom: 22,
-      }).addTo(instance);
+      });
+      const cityContext = L.tileLayer(SWISS_CITY_CONTEXT_URL, {
+        attribution: '© swisstopo · Sonnendach / SFOE', maxNativeZoom: 18, maxZoom: 22,
+      });
+      const updateBaseLayer = () => {
+        const showCityContext = cityLabelsAreVisible(instance.getZoom());
+        const visible = showCityContext ? cityContext : aerial;
+        const hidden = showCityContext ? aerial : cityContext;
+        if (instance.hasLayer(hidden)) instance.removeLayer(hidden);
+        if (!instance.hasLayer(visible)) visible.addTo(instance);
+      };
+      updateBaseLayer();
+      instance.on('zoomend', updateBaseLayer);
       L.control.scale({ imperial: false }).addTo(instance);
       instance.on('click', event => analyzeRef.current(event.latlng.lat, event.latlng.lng));
       map.current = instance;
@@ -104,7 +122,7 @@ export default function Home() {
       </form>
       {!!searchResults.length && <div className="search-results">{searchResults.map((r, i) => <Button variant="ghost" key={i} onClick={() => { map.current?.setView([r.lat, r.lon], 20); setSearchResults([]); setMessage('Click inside the roof you want to analyze.'); }}>{r.label.replace(/<[^>]+>/g, '')}</Button>)}</div>}
       <div className="model-status">{Object.entries(models).map(([name, m]) => <div key={name}><span className={m.available ? 'dot ready' : 'dot'} />{name === 'swiss' ? 'Swiss PV' : name === 'roof' ? 'Roof boundaries' : 'Roof obstacles'}<strong>{m.state === 'training' ? `Training ${m.epoch ?? 0}/${m.epochs_requested}` : m.available ? 'Ready' : m.state.replaceAll('_', ' ')}</strong></div>)}{!Object.keys(models).length && <span>Connecting to local model server…</span>}</div>
-      <div className="legend"><span><i className="roof" />Roof</span><span><i className="pv" />Existing PV</span><span><i className="obstacle" />Obstacles</span><span><i className="new" />New panels</span></div>
+      <div className="legend"><span><i className="roof" />Roof</span><span><i className="pv" />Existing PV</span><span><i className="obstacle" />Obstacles</span><span><i className="advisory" />Advisory shadow</span><span><i className="new" />New panels</span></div>
       <output className="selection-status">{busy && <span className="spinner" />}{message}</output>
       {error && <div className="error" role="alert">{error}</div>}
       {result?.provisional && <p className="error">Provisional layout: a model or obstacle data source is not fully available. Do not treat empty predictions as a clear roof.</p>}

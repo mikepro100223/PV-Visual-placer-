@@ -87,7 +87,11 @@ def predict(image, bounds, confidence, obstacle_confidence=None):
                         continue
                     for coords, cls, score in zip(result.masks.xy,result.boxes.cls.tolist(),result.boxes.conf.tolist()):
                         label=ALIASES.get(model.names[int(cls)],model.names[int(cls)])
-                        if dataset=='rid' and os.environ.get('OBSTACLE_MODEL_PATH') and label=='pv_installation':
+                        # The Swiss checkpoint is the high-quality, in-domain
+                        # PV specialist. RID remains a fallback for PV only
+                        # when that checkpoint is unavailable.
+                        if (dataset=='rid' and label=='pv_installation'
+                                and checkpoint_path('swiss').is_file()):
                             continue
                         threshold=obstacle_confidence if dataset=='rid' and label!='pv_installation' else confidence
                         if score<threshold:

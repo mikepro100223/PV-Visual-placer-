@@ -1,6 +1,8 @@
 .venv/
 data/
 runs/
+artifacts/
+.coverage
 models/*.pt
 !models/swiss_best.pt
 !models/rid_best.pt
@@ -14,3 +16,5 @@ logs/
 /Ultralytics/
 /logs-*.txt
 /datasets/
+/.cache/
+/frontend/

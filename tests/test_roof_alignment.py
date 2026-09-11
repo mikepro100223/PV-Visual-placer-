@@ -21,6 +21,25 @@ def test_recovers_translation_without_scaling_or_rotating_faces():
     assert aligned[0].centroid.distance(box(10,10,30,30).centroid)<.2
 
 
+def test_shrinks_an_overhanging_outline_onto_consistent_image_edges():
+    roof=box(9,9,31,31)
+    aligned,report=align_roof_faces([roof],aerial(),(0,0,40,40))
+    expected=box(10,10,30,30)
+    assert report['applied']
+    assert report['scale']==pytest.approx(20/22,abs=.015)
+    assert aligned[0].hausdorff_distance(expected)<.25
+
+
+def test_does_not_shrink_towards_a_single_internal_roof_edge():
+    data=np.full((400,400,3),30,dtype=np.uint8)
+    data[100:300,100:300]=(170,100,65)
+    data[195:205,100:300]=(245,245,245)
+    roof=box(10,10,30,30)
+    aligned,report=align_roof_faces([roof],Image.fromarray(data),(0,0,40,40))
+    assert not report['applied']
+    assert aligned[0].equals(roof)
+
+
 def test_already_aligned_outline_stays_fixed():
     roof=box(10,10,30,30)
     aligned,report=align_roof_faces([roof],aerial(),(0,0,40,40))

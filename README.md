@@ -1,6 +1,6 @@
 # PV Visual Placer
 
-Local Swiss aerial map, PyTorch YOLO11 segmentation and real-size solar-module placement. Click inside a house roof or search an address.
+Local Swiss aerial map, PyTorch YOLO11 segmentation and real-size solar-module placement. Click inside a house roof or search an address. At zoom level 14 and below, the aerial imagery switches to the labelled swisstopo national map so the current town remains visible.
 
 ## Run
 
@@ -25,12 +25,13 @@ Tested with Python 3.14.3 and PyTorch 2.10.0+cu128. The frontend requires Node 2
 ## Detection and placement
 
 - **Swiss PV model:** existing PV installation masks, including negative examples without panels. It detects coverage, not installation age or individual module electrical specifications.
-- **Obstacle model:** RID classes PV, dormer, skylight, ladder, chimney, shadow, tree and other obstruction. These labels are separate from the PV-only dataset.
+- **Obstacle model:** RID classes PV, dormer, skylight, ladder, chimney, shadow, tree and other obstruction. When available, the stronger in-domain Swiss model exclusively owns PV and RID handles physical obstacles at the calibrated 0.30 default confidence. Confident Swiss-PV pixels take precedence over contradictory model-only obstacle pixels; measured height/survey evidence is preserved. Shadows are displayed as advisory evidence and do not represent a physical placement exclusion.
 - **Roof model:** roof masks from the local dataset, supplemented by Geneva imagery paired with Sonnendach roof polygons. When available, placement requires agreement between detected roofs and Sonnendach geometry.
 - **Unoccupied roof:** calculated as roof area minus detected PV and obstacles. Missing detections are not proof that an area is clear. The site visibly marks layouts provisional while a required model is unavailable.
 - **Module:** Trina Vertex S+ TSM-NEG9RC.27, 450 W, **1.762 x 1.134 m**. There is no universal module size; this is one actual manufacturer model.
 - **Spacing:** 0.60 m edge clearance, 0.50 m obstacle clearance, 0.10 m between modules, 0.35 m between pitched-roof rows, at least 1 m between flat-roof rows, and an 0.80 m access corridor on larger roof faces. Edge clearance and row spacing are adjustable. These are conservative prototype settings, not certified installation rules.
 - **No stacking:** the building shares one occupancy ledger across all facets. Overlapping or duplicated roof polygons cannot receive another stack of panels. Complete modules must fit inside their roof face in physical roof-plane metres, accounting for pitch and aspect.
+- **Image alignment:** official Sonnendach roof faces may be shifted against imagery by acquisition date or roof-height projection. A correction is applied only when image edges provide strong evidence on at least three boundary directions; consistent all-sided overhang can additionally shrink the outline by at most 10%. Ambiguous matches keep the official geometry.
 
 Annual energy uses Sonnendach radiation and an assumed 80% performance ratio. There is no new hourly weather, height-map shadow, structural or electrical-string simulation. Exact flat-roof rack tilt/spacing still requires installation design. Geodata and imagery can differ in date and alignment; small or obscured obstacles may be missed.
 
@@ -74,7 +75,17 @@ For the original public downloads, use `scripts/download_data.py --swiss` and `s
 
 Outputs: `models/{swiss,rid,roof}_best.pt`, live `*_status.json`, final held-out `*_metrics.json`, and resumable checkpoints/curves under `runs/`. Check status files for actual completion; preparation alone is not training. RID scores evaluate the German source domain and do not establish Swiss obstacle accuracy.
 
+For the current object-detection error analysis, RID2 compatibility mapping,
+promotion gates and the repeatable six-roof benchmark, see
+[docs/OBJECT_DETECTION_ITERATION.md](docs/OBJECT_DETECTION_ITERATION.md).
+
 The initial completed Swiss run (100 epochs, before the requested retraining) achieved held-out mask precision **0.842**, recall **0.766**, mAP50 **0.865** and mAP50-95 **0.594**. These are installation-region metrics, not a guarantee of roof capacity accuracy.
+
+The promoted YOLO11s-seg obstacle checkpoint was fine-tuned on the audited
+RID2 geographic split. At 1024 px it improved mapped RID2 validation mask
+mAP50 from **0.166 to 0.417** and sealed-test mask mAP50 from **0.232 to
+0.326**. RID2 contains no tree or shadow labels, so those classes are not
+claimed as improved; see the iteration report for per-class and system gates.
 
 ## Selective Abbas integration
 
@@ -85,6 +96,7 @@ Obstacle detection now combines Yucan RID with Abbas height-based structures, im
 ```powershell
 .\.venv\Scripts\python.exe -m pytest tests -q
 Set-Location web
+npm.cmd run test:map
 .\node_modules\.bin\tsc.cmd --noEmit
 .\node_modules\.bin\oxlint.cmd app vite.config.ts
 npm.cmd run build

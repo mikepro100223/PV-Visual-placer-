@@ -3,7 +3,15 @@ import pytest
 from PIL import Image
 from shapely.geometry import box,Polygon
 from shapely.ops import unary_union
-from app.detections import normalise,merge_detections,pixel_to_world,world_to_pixel,public_detection
+from app.detections import (
+    arbitrate_detections,
+    blocks_placement,
+    merge_detections,
+    normalise,
+    pixel_to_world,
+    public_detection,
+    world_to_pixel,
+)
 from app.obstacles.views import detection_views
 
 
@@ -39,6 +47,48 @@ def test_duplicate_masks_keep_union_without_expanding_pv_into_obstacles():
     pv=[o for o in results if o['kind']=='pv_installation']
     assert len(pv)==1 and pv[0]['geometry'].area==120 and pv[0]['confidence']==.9
     assert len(results)==2
+
+
+def test_overlapping_tile_masks_preserve_complete_object_coverage():
+    results=merge_detections([
+        obj(box(0,0,10,10),score=.9),
+        obj(box(4,0,14,10),score=.8),
+        obj(box(8,0,18,10),score=.7),
+    ])
+    chimneys=[o for o in results if o['kind']=='chimney']
+    assert len(chimneys)==1
+    assert chimneys[0]['geometry'].bounds==(0,0,18,10)
+    assert chimneys[0]['geometry'].area==180
+
+
+def test_merged_detection_uses_measured_source_independent_of_input_order():
+    model=obj(box(0,0,2,2),score=.9,source='rid')
+    measured=obj(box(0,0,2,2),score=None,source='abbas_height')
+    forward=merge_detections([model,measured])[0]
+    reverse=merge_detections([measured,model])[0]
+    assert forward['source']==reverse['source']=='abbas_height'
+    assert forward['model']==reverse['model']=='abbas_height'
+    assert forward['sources']==reverse['sources']==['abbas_height','rid']
+
+
+def test_trusted_pv_removes_only_conflicting_model_obstacle_area():
+    pv=obj(box(0,0,10,10),'pv_installation',.9,'swiss')
+    rid=obj(box(5,0,12,10),'other_obstacle',.8,'rid')
+    measured=obj(box(2,2,4,4),'chimney',None,'abbas_height')
+    results=arbitrate_detections([pv,rid,measured])
+    clipped=next(o for o in results if o['kind']=='other_obstacle')
+    kept=next(o for o in results if o['kind']=='chimney')
+    assert clipped['geometry'].equals(box(10,0,12,10))
+    assert kept['geometry'].equals(measured['geometry'])
+    assert unary_union([o['geometry'] for o in results if o['kind']!='pv_installation']).intersection(pv['geometry']).area==4
+
+
+def test_shadow_is_advisory_and_public_contract_exposes_that():
+    shadow=normalise([obj(box(0,0,2,2),'shadow',.8)])[0]
+    chimney=normalise([obj(box(0,0,2,2),'chimney',.8)])[0]
+    assert not blocks_placement(shadow)
+    assert blocks_placement(chimney)
+    assert public_detection(shadow)['blocks_placement'] is False
 
 
 def test_views_cover_image_and_bound_cost():

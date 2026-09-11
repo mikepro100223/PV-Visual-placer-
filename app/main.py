@@ -12,7 +12,7 @@ import requests
 from app.geodata import TO_WGS, get_roofs, get_image, search_address
 from app.geometry import MODULE, esri_polygon, pack_building
 from app.inference import status, predict
-from app.detections import normalise,merge_detections,public_detection
+from app.detections import arbitrate_detections,blocks_placement,normalise,public_detection
 from app.obstacles.pipeline import detect_obstacles
 from app.roof_alignment import align_roof_faces
 
@@ -39,7 +39,7 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
             confidence: float=Query(default=.25,ge=.1,le=.9),
             setback: float=Query(default=.6,ge=.3,le=2),
             row_gap: float=Query(default=.35,ge=.2,le=2),
-            obstacle_confidence: float=Query(default=.25,ge=.1,le=.9)):
+            obstacle_confidence: float=Query(default=.30,ge=.1,le=.9)):
     available = status()
     if not any(m['available'] for m in available.values()):
         raise HTTPException(503,'The roof models are still training. Watch the model status and try again when a checkpoint is ready.')
@@ -64,7 +64,8 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
         detections.extend(extra)
         detections = [dict(d,geometry=d['geometry'].intersection(whole)) for d in detections if d['label']!='roof' and d['geometry'].intersects(whole)]
         detections = [d for d in detections if not d['geometry'].is_empty and d['geometry'].area>.01]
-        detections=merge_detections(detections)
+        detections=arbitrate_detections(detections)
+        blocking=[d for d in detections if blocks_placement(d)]
         features, facets = [], []
         panel_count,total_usable,total_energy = 0,0,0
         warnings = list(obstacle_warnings)
@@ -82,7 +83,7 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
             planning_faces.append(dict(geometry=planning_roof if valid else roof.difference(roof),
                                        slope=float(attrs['neigung']) if valid else 0,
                                        azimuth=(float(attrs['ausrichtung'])+180)%360 if valid else 0))
-        layouts=pack_building(planning_faces,[d['geometry'] for d in detections],setback=setback,row_gap=row_gap)
+        layouts=pack_building(planning_faces,[d['geometry'] for d in blocking],setback=setback,row_gap=row_gap)
         for i,(record,roof) in enumerate(zip(records,geometries)):
             attrs = record['attributes']
             if attrs.get('neigung') is None or attrs.get('ausrichtung') is None:
@@ -111,16 +112,17 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
                 display_roof=display_roof.difference(unary_union([f['geometry'] for f in planning_faces[:i]]))
             if not display_roof.is_empty:
                 features.append(feature(display_roof,kind='roof',pitch=slope,azimuth=azimuth,facet=i))
-            free=planning_faces[i]['geometry'].difference(unary_union([d['geometry'] for d in detections]))
+            free=planning_faces[i]['geometry'].difference(unary_union([d['geometry'] for d in blocking]))
             if not free.is_empty:
                 features.append(feature(free,kind='free',label='Roof without detected PV or obstacles',facet=i))
             features.extend(feature(p,kind='panel',facet=i,power_w=450) for p in panels)
         for d in detections:
             features.append(feature(d['geometry'],kind='pv' if d['label']=='pv_installation' else 'obstacle',
                                     label=d['label'],confidence=d['confidence'],model=d['model'],
-                                    source=d.get('source',d['model']),sources=d.get('sources',[])))
+                                    source=d.get('source',d['model']),sources=d.get('sources',[]),
+                                    blocks_placement=blocks_placement(d)))
         if any(d['label']=='shadow' for d in detections):
-            warnings.append('Visible image shadows are excluded conservatively; seasonal shadow movement is not simulated.')
+            warnings.append('Visible image shadows are advisory and do not block placement; seasonal shadow movement is not simulated.')
         if any(f['pitch_deg']<1 for f in facets):
             warnings.append('Flat roofs reserve at least 1 m between rows. Exact rack tilt and seasonal self-shading still need installation design.')
         warnings.extend(['Image predictions can miss small or obscured objects. Review the overlay.',

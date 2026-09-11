@@ -81,3 +81,17 @@ def test_combined_abbas_and_yucan_masks_block_all_sources_with_clearance(monkeyp
     assert all(not affinity.affine_transform(p,forward).intersects(blocked) for p in panels)
     assert all(roof.buffer(.001).covers(p) for p in panels)
     assert abs(sum(p.area for p in panels)-unary_union(panels).area)<.001
+
+
+def test_shadow_is_reported_but_does_not_reduce_panel_layout(monkeypatch):
+    roof=box(2640000,1230000,2640012,1230012)
+    roof_detection=dict(geometry=roof,label='roof',confidence=.9,model='roof')
+    baseline=setup_analysis(monkeypatch,[roof_detection]).get(
+        '/api/analyze',params={'lat':47.2,'lon':7.9}).json()
+    shadow=dict(geometry=box(2640002,1230002,2640010,1230010),label='shadow',confidence=.9,model='rid')
+    with_shadow=setup_analysis(monkeypatch,[roof_detection,shadow]).get(
+        '/api/analyze',params={'lat':47.2,'lon':7.9}).json()
+    assert with_shadow['panel_count']==baseline['panel_count']
+    reported=next(d for d in with_shadow['detections'] if d['kind']=='shadow')
+    assert reported['blocks_placement'] is False
+    assert any('advisory' in warning.lower() for warning in with_shadow['warnings'])

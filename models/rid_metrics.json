@@ -1,11 +1,18 @@
 {
-  "metrics/precision(B)": 0.5341616159325133,
-  "metrics/recall(B)": 0.4911900220115886,
-  "metrics/mAP50(B)": 0.4936773676257346,
-  "metrics/mAP50-95(B)": 0.2657902029975309,
-  "metrics/precision(M)": 0.5240133214585614,
-  "metrics/recall(M)": 0.4661255064407087,
-  "metrics/mAP50(M)": 0.4687321986768901,
-  "metrics/mAP50-95(M)": 0.22608273396678089,
-  "fitness": 0.4918729369643118
+  "metrics/precision(B)": 0.451,
+  "metrics/recall(B)": 0.392,
+  "metrics/mAP50(B)": 0.361,
+  "metrics/mAP50-95(B)": 0.216,
+  "metrics/precision(M)": 0.410,
+  "metrics/recall(M)": 0.382,
+  "metrics/mAP50(M)": 0.326,
+  "metrics/mAP50-95(M)": 0.188,
+  "evaluation": {
+    "dataset": "RID2 mapped to the Yucan eight-class head",
+    "split": "sealed test",
+    "images": 104,
+    "image_size": 1024,
+    "checkpoint_sha256": "ac8d2e68698f48140f8407628bb45269c39eeb95a22deaa89f1ebd95e8279a93",
+    "reported_precision": "Ultralytics CLI, three decimal places"
+  }
 }
