@@ -1,0 +1,36 @@
+PV Visual Placer — notices and third-party materials
+
+Copyright (C) 2026 PV Visual Placer contributors.
+
+Source-code scope
+-----------------
+The root LICENSE applies to source code authored for this project, except
+where a file or directory carries its own licence notice. It is licensed under
+the GNU Affero General Public License, version 3 only (AGPL-3.0-only).
+
+The LICENSE does not grant rights in datasets, aerial imagery, geodata, model
+weights, trademarks, or other assets whose terms are stated separately. See
+models/README.md and README.md for those materials.
+
+AGPL component
+--------------
+The code in app/obstacles/ carries a preserved copy of the GNU Affero General
+Public License v3 in app/obstacles/LICENSE. It was adapted and integrated into
+this application in 2026; its integration history and boundaries are recorded
+in docs/ABBAS_INTEGRATION.md. Keep that licence text and this attribution when
+redistributing modified versions.
+
+External services and data
+--------------------------
+This project queries or documents third-party sources including the SFOE
+Sonnendach API, swisstopo imagery and height data, SITG data, the Swiss PV
+dataset, and RID/RID2 material. Those providers retain their respective rights.
+Their material is not relicensed by this repository. The current source links
+and attributions are listed in README.md and models/README.md.
+
+Contributions
+-------------
+Each contributor must have the right to submit their contribution under
+AGPL-3.0-only. Before a public release, maintainers should confirm that every
+listed team contributor agrees to this licence choice and that any new external
+code or assets are recorded with their original terms.

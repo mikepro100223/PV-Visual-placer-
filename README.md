@@ -138,6 +138,22 @@ npm.cmd run build
 
 Geometry tests cover physical dimensions at different pitches/aspects, roof holes and concavities, edge/obstacle clearances, overlapping facets, duplicate exclusions and reduced flat-roof density. Live API checks include an occupied sloped roof yielding no new panels and a flat house whose revised layout drops from 142 to 69 modules. The scoped lint command checks product code; the unused generated component catalog has upstream lint findings.
 
+## Licence and third-party assets
+
+The project source code is licensed under **AGPL-3.0-only**; see
+[LICENSE](LICENSE) and [NOTICE](NOTICE). This means that a publicly operated
+modified version must make its corresponding source code available under the
+same licence. Before a public release, every project contributor must confirm
+that they agree to this licence choice.
+
+This licence does **not** relicense model weights, training data, aerial imagery
+or geodata. In particular, RID/RID2-related checkpoints are subject to the
+RID **CC BY-NC 4.0** terms and must remain non-commercial with attribution,
+licence link and change indication. The tracked models, their provenance and
+the release rule for uncertain assets are documented in
+[models/README.md](models/README.md). If a model's rights are unclear, release
+the code without the model file rather than claiming AGPL rights for it.
+
 ## Sources
 
 - [Swiss PV dataset](https://www.kaggle.com/datasets/jeanprbt/swiss-solar-panels-segmentation), listed as CC0, and [authors' code](https://github.com/jeanprbt/swiss-solar-panel-segmentation).
