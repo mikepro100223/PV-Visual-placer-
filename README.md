@@ -57,7 +57,7 @@ development proxy.
 ## Detection and placement
 
 - **Swiss PV model:** existing PV installation masks, including negative examples without panels. It detects coverage, not installation age or individual module electrical specifications.
-- **Obstacle model:** RID classes PV, dormer, skylight, ladder, chimney, shadow, tree and other obstruction. When available, the stronger in-domain Swiss model exclusively owns PV and RID handles physical obstacles at the calibrated 0.30 default confidence. Confident Swiss-PV pixels take precedence over contradictory model-only obstacle pixels; measured height/survey evidence is preserved. Shadows are displayed as advisory evidence and do not represent a physical placement exclusion.
+- **Obstacle model:** RID supplies image-model estimates for physical rooftop obstacles. The in-domain Swiss model exclusively owns PV when available; RID handles obstacles at the calibrated 0.30 default confidence. RID2 did not provide tree or shadow labels, so neither is claimed as improved by the RID2 retraining. Visible shadows remain advisory and do not represent a physical placement exclusion. Confident Swiss-PV pixels take precedence over contradictory model-only obstacle pixels; measured height/survey evidence is preserved.
 - **Roof model:** roof masks from the local dataset, supplemented by Geneva imagery paired with Sonnendach roof polygons. When available, placement requires agreement between detected roofs and Sonnendach geometry.
 - **Unoccupied roof:** calculated as roof area minus detected PV and obstacles. Missing detections are not proof that an area is clear. The site visibly marks layouts provisional while a required model is unavailable.
 - **Module:** Trina Vertex S+ TSM-NEG9RC.27, 450 W, **1.762 x 1.134 m**. There is no universal module size; this is one actual manufacturer model.
@@ -66,6 +66,8 @@ development proxy.
 - **Image alignment:** official Sonnendach roof faces may be shifted against imagery by acquisition date or roof-height projection. A correction is applied only when image edges provide strong evidence on at least three boundary directions; consistent all-sided overhang can additionally shrink the outline by at most 10%. Ambiguous matches keep the official geometry.
 
 Annual energy uses Sonnendach radiation and an assumed 80% performance ratio. There is no new hourly weather, height-map shadow, structural or electrical-string simulation. Exact flat-roof rack tilt/spacing still requires installation design. Geodata and imagery can differ in date and alignment; small or obscured obstacles may be missed.
+
+After each analysis, the interface lists the inputs actually consulted: Sonnendach roof geometry and annual radiation, swisstopo imagery, the available PV/obstacle models, height data, the local rooflight check and (inside Geneva only) SITG survey polygons. A source marked unavailable or outside coverage never means that the corresponding roof area is clear.
 
 ## Data from `datasets/`
 

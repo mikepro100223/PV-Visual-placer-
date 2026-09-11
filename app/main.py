@@ -36,6 +36,43 @@ def search(q: str=Query(min_length=3,max_length=150)):
 def feature(geometry, **properties):
     return dict(type='Feature',geometry=mapping(transform(TO_WGS.transform,geometry)),properties=properties)
 
+def analysis_sources(available, obstacle_sources):
+    """Describe the inputs actually consulted for one analysis response."""
+    swiss_available=available.get('swiss',{}).get('available',False)
+    rid_available=available.get('rid',{}).get('available',False)
+    pv_provider='Swiss PV segmentation model' if swiss_available else (
+        'RID obstacle model (PV fallback)' if rid_available else 'No PV model available')
+    pv_detail=('Existing-PV areas are image-model estimates, not electrical-capacity records.'
+               if swiss_available or rid_available else
+               'No image model was available; an empty result does not prove that no PV exists.')
+    def coverage(key, name, provider, detail):
+        state=obstacle_sources.get(key,'unavailable')
+        if state=='ready':
+            status='checked'
+        elif state=='outside_coverage':
+            status='not applicable outside Geneva'
+        else:
+            status='unavailable — not evidence of a clear roof'
+        return dict(name=name,provider=provider,detail=detail,status=status)
+    return [
+        dict(name='Roof geometry and annual radiation',provider='Sonnendach · Swiss Federal Office of Energy (SFOE)',
+             detail='Roof faces, slope, direction and annual radiation are official map attributes.',status='used'),
+        dict(name='Aerial image',provider='swisstopo Swissimage',
+             detail='Image age and map geometry can differ.',status='used'),
+        dict(name='Existing PV',provider=pv_provider,detail=pv_detail,
+             status='used' if swiss_available or rid_available else 'unavailable — not evidence of a clear roof'),
+        coverage('rid','Image-model obstacles','RID obstacle segmentation model',
+                 'Image-model obstacles need visual review; the model is not a Swiss construction record.'),
+        coverage('height','Surface-height obstacles','swisstopo swissSURFACE3D',
+                 'Raised structures are inferred from the 0.5 m surface-height model.'),
+        coverage('rooflights','Image rooflight check','Local image-based rooflight check',
+                 'A local colour and size heuristic checks for rooflights; reflections and non-blue windows can be missed.'),
+        coverage('geneva','Geneva surveyed roof superstructures','SITG Geneva surveyed roof superstructures',
+                 'Official survey polygons are available only within Geneva coverage and may predate imagery.'),
+        dict(name='Annual energy',provider='Sonnendach annual radiation × 80% performance ratio',
+             detail='This is an annual planning estimate, not a weather forecast or a 3D-shadow simulation.',status='used'),
+    ]
+
 @app.get('/api/analyze')
 def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
             confidence: float=Query(default=.25,ge=.1,le=.9),
@@ -141,6 +178,7 @@ def analyze(lat: float=Query(ge=45.7,le=47.9),lon: float=Query(ge=5.9,le=10.6),
                     provisional=not all(m['available'] and m.get('state')=='ready' for m in available.values())
                                 or 'unavailable' in obstacle_sources.values(),
                     detections=[public_detection(d) for d in detections],obstacle_sources=obstacle_sources,
+                    sources=analysis_sources(available,obstacle_sources),
                     roof_alignment=roof_alignment,
                     spacing=dict(edge_m=setback,obstacle_m=.5,module_gap_m=.1,row_gap_m=row_gap,flat_row_gap_m=max(1,row_gap),access_aisle_m=.8),
                     module=asdict(MODULE),warnings=list(dict.fromkeys(warnings)),

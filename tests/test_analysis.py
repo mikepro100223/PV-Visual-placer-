@@ -95,3 +95,29 @@ def test_shadow_is_reported_but_does_not_reduce_panel_layout(monkeypatch):
     reported=next(d for d in with_shadow['detections'] if d['kind']=='shadow')
     assert reported['blocks_placement'] is False
     assert any('advisory' in warning.lower() for warning in with_shadow['warnings'])
+
+
+def test_analysis_exposes_each_source_and_geneva_coverage(monkeypatch):
+    roof=box(2640000,1230000,2640012,1230012)
+    response=setup_analysis(monkeypatch,[dict(geometry=roof,label='roof',confidence=.9,model='roof')]).get(
+        '/api/analyze',params={'lat':47.2,'lon':7.9})
+
+    assert response.status_code==200
+    sources={item['name']:item for item in response.json()['sources']}
+    assert sources['Roof geometry and annual radiation']['provider'].startswith('Sonnendach')
+    assert sources['Aerial image']['provider']=='swisstopo Swissimage'
+    assert sources['Geneva surveyed roof superstructures']['status']=='not applicable outside Geneva'
+    assert 'not evidence of a clear roof' not in sources['Surface-height obstacles']['status']
+
+
+def test_analysis_marks_missing_obstacle_sources_as_unavailable(monkeypatch):
+    roof=box(2640000,1230000,2640012,1230012)
+    client=setup_analysis(monkeypatch,[dict(geometry=roof,label='roof',confidence=.9,model='roof')])
+    monkeypatch.setattr(main,'detect_obstacles',lambda *args:([],[],{
+        'height':'unavailable','rooflights':'ready','geneva':'outside_coverage'}))
+
+    response=client.get('/api/analyze',params={'lat':47.2,'lon':7.9})
+
+    assert response.status_code==200
+    sources={item['name']:item for item in response.json()['sources']}
+    assert sources['Surface-height obstacles']['status']=='unavailable — not evidence of a clear roof'

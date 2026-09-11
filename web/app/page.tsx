@@ -12,7 +12,8 @@ import {
 import 'leaflet/dist/leaflet.css';
 type ModelState = { state: string; available: boolean; epoch?: number; epochs_requested?: number };
 type Facet = { id: number; pitch_deg: number; azimuth_deg: number; panel_count: number; usable_area_m2: number };
-type Result = { building_id: number; geojson: FeatureCollection; panel_count: number; additional_kwp: number; annual_kwh: number | null; usable_area_m2: number; existing_pv_area_m2: number; facets: Facet[]; warnings: string[]; image: string; provisional?: boolean };
+type AnalysisSource = { name: string; provider: string; detail: string; status: string };
+type Result = { building_id: number; geojson: FeatureCollection; panel_count: number; additional_kwp: number; annual_kwh: number | null; usable_area_m2: number; existing_pv_area_m2: number; facets: Facet[]; warnings: string[]; image: string; sources: AnalysisSource[]; provisional?: boolean };
 async function request<T>(path: string): Promise<T> {
   const response = await fetch(path); const body: unknown = await response.json();
   if (!response.ok) {
@@ -133,6 +134,7 @@ export default function Home() {
       <div className="settings"><label htmlFor="setback">Roof edge clearance (m)<Input id="setback" type="number" min="0.3" max="2" step="0.1" value={setback} onChange={e => { const v=Number(e.target.value); if(Number.isFinite(v)) setSetback(Math.min(2,Math.max(.3,v))); }} /></label><label htmlFor="confidence">PV / roof confidence<Input id="confidence" type="number" min="0.1" max="0.9" step="0.05" value={confidence} onChange={e => { const v=Number(e.target.value); if(Number.isFinite(v)) setConfidence(Math.min(.9,Math.max(.1,v))); }} /></label><label htmlFor="obstacle-confidence">Obstacle confidence<Input id="obstacle-confidence" type="number" min="0.1" max="0.9" step="0.05" value={obstacleConfidence} onChange={e => { const v=Number(e.target.value); if(Number.isFinite(v)) setObstacleConfidence(Math.min(.9,Math.max(.1,v))); }} /></label><label htmlFor="row-gap">Space between rows (m)<Input id="row-gap" type="number" min="0.2" max="2" step="0.05" value={rowGap} onChange={e => { const v=Number(e.target.value);if(Number.isFinite(v))setRowGap(Math.min(2,Math.max(.2,v))); }} /></label></div>
       <p className="small">10 cm module gaps · at least 1 m between flat-roof rows · 80 cm access corridor on large faces.</p>
       <Button className="reanalyze" disabled={!selected || busy} onClick={() => selected && analyze(...selected)}>Analyze selected house again</Button>
+      {result && <details className="sources"><summary>Sources used for this analysis</summary><ul>{result.sources.map(source => <li key={source.name}><strong>{source.name}</strong><span>{source.provider}</span><small>{source.detail}</small><em>{source.status}</em></li>)}</ul></details>}
       {result && <details><summary>Assumptions and limits</summary><ul>{result.warnings.map(w => <li key={w}>{w}</li>)}</ul></details>}
       <footer>Prototype layout · review detections before using results.<br />Direction: 0° north, 90° east, 180° south.</footer>
     </aside>
