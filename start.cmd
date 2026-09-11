@@ -1,4 +1,8 @@
 @echo off
 cd /d "%~dp0"
-".venv\Scripts\python.exe" scripts\serve.py
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0start.ps1"
+if errorlevel 1 (
+  echo.
+  echo Startup failed. See the messages above.
+)
 pause

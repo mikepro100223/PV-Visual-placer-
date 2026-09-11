@@ -1,6 +1,7 @@
 from dataclasses import asdict
 import io
 import base64
+import os
 import threading
 
 from fastapi import FastAPI, HTTPException, Query
@@ -17,7 +18,8 @@ from app.obstacles.pipeline import detect_obstacles
 from app.roof_alignment import align_roof_faces
 
 app = FastAPI(title='PV Visual Placer',version='0.1.0')
-app.add_middleware(CORSMiddleware,allow_origins=['http://localhost:5173','http://127.0.0.1:5173'],allow_methods=['GET'])
+WEB_PORT = os.environ.get('PV_WEB_PORT','5173')
+app.add_middleware(CORSMiddleware,allow_origins=[f'http://localhost:{WEB_PORT}',f'http://127.0.0.1:{WEB_PORT}'],allow_methods=['GET'])
 ANALYSIS_LOCK = threading.Lock()
 
 @app.get('/api/status')

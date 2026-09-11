@@ -4,11 +4,20 @@ Local Swiss aerial map, PyTorch YOLO11 segmentation and real-size solar-module p
 
 ## Run
 
-Double-click `start.cmd`, or run `.\start.ps1`, then open **http://127.0.0.1:5173**. The launcher runs the Python API on port 8000 and the map on port 5173. Logs are in `logs/`. Ctrl+C stops its servers, not training. Internet is needed for uncached Swiss imagery and roof lookup; no paid API key is needed.
+Double-click `start.cmd` (or run `.\start.ps1`) on any Windows machine. On first run it sets everything up automatically:
 
-Training and inference use CUDA-enabled PyTorch on the **RTX 4090 Laptop GPU (16 GB)**. Training refuses CPU execution. Set `PV_INFERENCE_DEVICE=cpu` only if you intentionally want CPU inference.
+- finds Python 3.10–3.14 and Node 22.13+, installing them via winget if missing;
+- creates `.venv` (recreating it if it was copied from another machine);
+- installs PyTorch — the CUDA build if an NVIDIA GPU is present, the CPU build otherwise — plus `requirements.txt`;
+- runs `npm ci` in `web/`.
 
-For a fresh environment:
+Later runs skip setup unless `requirements.txt`, `package-lock.json` or the Node version change. The first run needs internet and takes several minutes.
+
+The launcher runs the Python API on port 8000 and the map on port 5173, and opens the map in your browser once it is ready. If either port is taken by another program, it uses the next free one and prints the actual URL. Leftover servers from an earlier run of this folder are stopped automatically, and closing the launcher window stops its servers too. Logs are in `logs/`. Ctrl+C stops its servers, not training. Internet is needed for uncached Swiss imagery and roof lookup; no paid API key is needed.
+
+Training and inference use CUDA-enabled PyTorch on the **RTX 4090 Laptop GPU (16 GB)**. Training refuses CPU execution. On machines without CUDA, inference falls back to the CPU automatically; set `PV_INFERENCE_DEVICE=cpu` to force CPU inference on a GPU machine.
+
+Manual setup (equivalent to what `start.cmd` does on first run):
 
 ```powershell
 python -m venv .venv
