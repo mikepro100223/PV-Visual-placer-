@@ -9,6 +9,8 @@ stündlichen sowie monatlichen Stromertrag mit pvlib.
 
 [Challenge des Swiss Data Science Center](https://www.energydatahackdays.ch/challenges/ai-for-accurate-rooftop-pv-potential)
 · [Projekt- und Qualitätsvertrag](docs/PROJECT_CONTRACT.md)
+· [Abnahmekriterien](docs/ACCEPTANCE_CRITERIA.md)
+· [Fehleranalyse](docs/ERROR_ANALYSIS.md)
 
 Das Schweizer YOLO11-Modell wurde lokal für 50 Epochen trainiert. Auf 70 getrennten
 Testbildern erreicht es **0.779 Masken-mAP50 und 0.683 Flächen-IoU**.
@@ -158,7 +160,26 @@ uv run python scripts/verify_dashboard.py
 # Automatische Tests für Daten, Geometrie, Physik und Anwendung
 make test
 make coverage
+
+# Reproduzierbare Laufzeit-Baseline ohne Netzwerk, Daten oder Checkpoint
+uv run python scripts/benchmark_runtime.py
 ```
+
+Eine Baseline enthält Geräte- und Paketinformationen sowie getrennte Messungen
+für Geometrie/Belegung und die PV-Physik. Reale Inferenz wird nur bewusst mit
+einem Bild und dem dazugehörigen Checkpoint gemessen:
+
+```sh
+uv run python scripts/benchmark_runtime.py \
+  --image /absoluter/pfad/luftbild.jpg \
+  --weights /absoluter/pfad/best.pt --device auto
+```
+
+Der JSON-Bericht gehört nach `artifacts/benchmarks/` und wird nicht eingecheckt.
+Die vollständigen [Abnahmekriterien](docs/ACCEPTANCE_CRITERIA.md), die
+[Fehleranalyse](docs/ERROR_ANALYSIS.md), die
+[Accessibility-Checkliste](docs/ACCESSIBILITY.md) und die
+[Setup-Fehlerbehebung](docs/SETUP_TROUBLESHOOTING.md) ergänzen die Modellkarten.
 
 ## Quellen
 
