@@ -5,7 +5,7 @@ from threading import Lock
 from collections import OrderedDict
 import logging
 from .sam_service import SamRefiner
-from .pv_segmentation import detection_views, merge_detections
+from .pv_segmentation import detection_views, merge_detections, corroborated_pv
 
 CLASSES = {"existing_pv", "chimney", "skylight", "other_obstacle", "dormer"}
 ALIASES = {
@@ -92,7 +92,13 @@ class YoloService:
                 )
                 warnings = []
                 objects = []
-                for view, offset_x, offset_y in detection_views(image):
+                from PIL import Image
+                views = [(view, x, y, False) for view, x, y in detection_views(image)]
+                if not self.obstacle_only:
+                    views += [(view, x, y, True) for view, x, y in
+                              detection_views(image.transpose(Image.Transpose.ROTATE_180))]
+                rotated_objects = []
+                for view, offset_x, offset_y, rotated in views:
                     try:
                         result = self.model.predict(view, device=self.device, **kwargs)[0]
                     except RuntimeError:
@@ -110,15 +116,18 @@ class YoloService:
                         kind = str(self.model.names[int(cls)])
                         kind = ALIASES.get(kind, kind)
                         if len(mask) >= 3:
-                            objects.append(
+                            points = [[float(x)+offset_x, float(y)+offset_y] for x, y in mask]
+                            if rotated:
+                                points = [[image.width-x, image.height-y] for x, y in points]
+                            (rotated_objects if rotated else objects).append(
                                 {
-                                    "polygon": [[float(x)+offset_x, float(y)+offset_y] for x, y in mask],
+                                    "polygon": points,
                                     "kind": kind,
                                     "confidence": confidence,
                                     "source": "yolo",
                                 }
                             )
-                objects = merge_detections(objects)
+                objects = merge_detections(objects + corroborated_pv(objects, rotated_objects))
                 objects, sam_warning = self.refiner.refine(image, objects)
                 if sam_warning:
                     warnings.append(sam_warning)

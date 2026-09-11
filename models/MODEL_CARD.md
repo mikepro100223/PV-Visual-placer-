@@ -12,6 +12,25 @@ The deployed `rooftop_best.pt` is now the validation-selected **35-epoch PV fine
 
 This is a precision/recall trade-off, not a claim that every installation is found. Comparisons use the same 640-pixel input, 0.25 threshold and retina masks. Ground truth is converted polygon masks; the test set is the existing reused benchmark, not a newly blind national survey. Application heuristics, multi-view inference and roof placement are not included in these pixel scores. Exact checkpoint hashes, counts and per-image results are in `pv-retrain-validation.json` and `pv-retrain-test.json`.
 
+## PV inference update, 11 September 2026
+
+The application now runs the deployed checkpoint on the original and 180-degree
+views, including the existing bounded overlapping tiles. Confidence remains
+0.25. Additional masks must overlap original PV evidence over at least 25% of
+their area; augmentation cannot introduce wholly unsupported arrays. Coordinates
+are restored before merging, and merged courtyard holes are preserved by
+partitioning the exterior-only API representation. This doubles inference views;
+image-result caching remains enabled. No new checkpoint training was performed
+for this inference update, and the single-pass metrics above do not measure it.
+
+Reviewed live captures: Bachstrasse 15, Aarau recovers previously missed central
+rows (98 to 66 proposed modules); Bleichemattstrasse 31 still excludes the courtyard
+and both fan banks (169 proposed modules); Hirschlistrasse 3, Baden retains the
+PV/awning distinction (12 proposed modules). Counts are planning outputs, not
+ground-truth module capacity. `tests/test_pv_orientation.py` checks real Bachstrasse
+PV interiors and non-PV controls, unsupported candidates and courtyard topology.
+These cases do not establish flawless detection on other buildings.
+
 ## Geneva obstacle experiments
 
 The provided SITG catalogue has 2D surveyed superstructure footprints, EGIDs, absolute elevations and survey dates, **not chimney/window subtype labels or exhaustive occupancy**. Prepared 600 georeferenced 64 m SWISSIMAGE chips at 10 cm/pixel: 409 train / 59 validation / 132 test, containing 5,816 / 496 / 2,351 polygon labels. Splits use 512 m blocks, discarded boundary chips and removal of cross-split EGIDs. Source and split records are included.

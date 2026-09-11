@@ -1,0 +1,8 @@
+Bachstrasse PV recognition regression image
+=========================================
+SWISSIMAGE aerial imagery, copyright swisstopo; retrieved through the app's
+map capture for Bachstrasse 15, 5000 Aarau (47.390263, 8.047975), 2026-09-11.
+The 1280 x 988 capture is kept at inference resolution. Reviewed positive
+points cover narrow PV rows previously missed by the single orientation;
+negative points cover shade, machinery, an opening and bare roof.
+These are regression probes, not a complete labelled mask or accuracy score.
